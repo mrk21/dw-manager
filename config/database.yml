@@ -1,0 +1,16 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8mb4
+  host: <%= ENV.fetch('DB_HOST'){ '127.0.0.1' } %>
+  port: <%= ENV.fetch('DB_PORT'){ 3306 } %>
+  username: <%= ENV.fetch('DB_USER'){ 'root' } %>
+  password: <%= ENV.fetch('DB_PASSWORD'){ '' } %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: dw_manager_development
+
+test:
+  <<: *default
+  database: dw_manager_test
