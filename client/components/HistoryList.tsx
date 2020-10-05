@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react';
+import { shallowEqual } from 'react-redux';
 import { useAppSelector, useAppDispatch, useDidMount } from '@/hooks';
 import { fetchHistoryList, historySelector } from '@/modules/history';
 import { APIError } from '@/entities/APIError';
@@ -8,7 +9,7 @@ const HistoryList: FC = () => {
   const dispatch = useAppDispatch();
   const [errors, setErrors] = useState<APIError[]>();
   const [loading, setLoading] = useState(true);
-  const histories = useAppSelector(historySelector.selectAll);
+  const histories = useAppSelector(historySelector.selectAll, shallowEqual);
 
   useDidMount(async () => {
     setLoading(true);
@@ -16,6 +17,12 @@ const HistoryList: FC = () => {
     setLoading(false);
     if (e) setErrors(e);
   });
+
+  if (loading) {
+    return (
+      <p>loading...</p>
+    );
+  }
 
   if (errors) {
     return (
@@ -27,18 +34,13 @@ const HistoryList: FC = () => {
     );
   }
 
-  if (loading) {
-    return (
-      <p>loading...</p>
-    );
-  }
-
   return (
     <ul>
       {histories.map((history) => (
         <li key={history.id}>
-          <b>{history.attributes.date}:</b>
-          <span>{history.attributes.title}</span>
+          <b>{history.attributes.date}:</b>&nbsp;
+          <span>{history.attributes.title}</span>&nbsp;
+          <span>{history.attributes.amount}</span>
           <HistoryTagList history={history} />
         </li>
       ))}

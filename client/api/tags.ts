@@ -1,6 +1,13 @@
 import { APIError } from '@/entities/APIError';
 import { decodeResponse, Response } from '@/entities/Response';
+import { decodeArrayResponse } from '@/entities/ArrayResponse';
 import { Tag } from '@/entities/Tag';
+
+export async function getTagList() {
+  const response = await fetch(`http://localhost:4000/tags`);
+  const json = await response.json();
+  return decodeArrayResponse(json, { data: Tag, error: APIError });
+};
 
 export async function getTagBatched(ids: string[]) {
   const response = await fetch(`http://localhost:4000/tags/batched/${ids.join(',')}`);

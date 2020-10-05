@@ -32,18 +32,24 @@ export const tagSelector = tagAdapter.getSelectors((state: RootState) => state.t
 const fetchTagBatched = batchRequest(
   (dispatch: AppDispatch) => async (ids: string[]) => {
     const results = await tagAPI.getTagBatched(ids);
-    for (const result of Object.values(results)) {
-      if (result.data) {
-        dispatch(tagAdded(result.data));
-      }
-    }
+    Object.values(results).forEach(({ data }) => {
+      if (data) dispatch(tagAdded(data));
+    });
     return results;
   },
   (id) => id
 )({
-  interval: 20,
-  max: 100,
+  wait: 10,
+  max: 1000,
 });
+
+export const fetchTagList = (): AppThunkAction<APIError[] | undefined> => async (dispatch) => {
+  const result = await tagAPI.getTagList();
+  if (result.data) {
+    dispatch(tagReceived(result.data));
+  }
+  return result.errors;
+};
 
 export const fetchTag = (id: string): AppThunkAction<APIError[] | undefined> => async (dispatch) => {
   const result = await fetchTagBatched(dispatch)(id);

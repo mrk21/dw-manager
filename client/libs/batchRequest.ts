@@ -1,52 +1,50 @@
 import { debounce, uniq } from 'lodash';
 
-type RequestFn<Params, Result, Args extends any[]> =
-  (...args: [...Args]) =>
+type BatchedResponse<Response> = { [key: string]: Response; };
+
+type RequestFn<Params, Response, Vars extends any[]> =
+  (...vars: [...Vars]) =>
     (paramsList: Params[]) =>
-      Promise<{ [key: string]: Result; }>;
+      Promise<BatchedResponse<Response>>;
 
 type KeyFn<Params> = (params: Params) => string;
 
 type Config = {
-  interval: number;
+  wait: number; // [msec]
   max: number;
 };
 
-type Queue<Params, Result> = Array<{
+type Queue<Params, Response> = Array<{
   params: Params;
-  resolve: (result: Result) => void;
+  resolve: (result: Response) => void;
 }>;
 
-export function batchRequest<Params, Result, Args extends any[]>(request: RequestFn<Params, Result, Args>, key: KeyFn<Params>) {
-  return ({ interval, max }: Config) => {
-    const queue: Queue<Params, Result> = [];
-    let args: [...Args];
+export function batchRequest<Params, Response, Vars extends any[]>(request: RequestFn<Params, Response, Vars>, key: KeyFn<Params>) {
+  return ({ wait, max }: Config) => {
+    const _queue: Queue<Params, Response> = [];
+    let _vars: [...Vars];
 
     const requestDebounced = debounce(async () => {
-      const que = queue.splice(0);
-      if (que.length === 0) return;
+      const queued = _queue.splice(0);
+      if (queued.length === 0) return;
 
-      const paramsList = que.map(({ params }) => params);
-      console.debug('### batch request: request:', paramsList);
-      const results = await request(...args)(uniq(paramsList));
+      const paramsList = uniq(queued.map(({ params }) => params));
+      const results = await request(..._vars)(paramsList);
 
-      que.forEach(({ params, resolve }) => {
+      queued.forEach(({ params, resolve }) => {
         const result = results[key(params)];
-        console.debug('### batch request: resolve:', params, result);
         resolve(result);
       });
-    }, interval);
+    }, wait);
 
-    return (...args_: [...Args]) => {
-      args = args_;
+    return (...vars: [...Vars]) => {
+      _vars = vars;
 
       return async (params: Params) => {
-        requestDebounced();
-
-        return new Promise<Result>((resolve) => {
-          console.debug('### batch request: push:', params);
-          queue.push({ params, resolve });
-          if (queue.length >= max) {
+        return new Promise<Response>((resolve) => {
+          requestDebounced();
+          _queue.push({ params, resolve });
+          if (_queue.length >= max) {
             requestDebounced.flush();
           }
         });

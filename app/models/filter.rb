@@ -4,7 +4,7 @@ class Filter < ApplicationRecord
   end
 
   # @param tags [Array<Tag> | Relation<Tag>]
-  def tag_to_matched_histories(tags)
+  def tag_to_matched_histories!(tags)
     matched_histories.in_batches(of: 1000 / tags.size) do |histories|
       records = histories.map do |history|
         tags.map do |tag|
