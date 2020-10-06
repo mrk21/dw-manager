@@ -1,7 +1,7 @@
-import React from 'react';
+import { FunctionComponent } from 'react';
 import { Store, AnyAction } from 'redux';
-import { GetServerSidePropsContext, GetStaticPropsContext, WrapperProps, Config, Context } from "next-redux-wrapper";
 import { GetServerSideProps, GetStaticProps, NextPageContext } from 'next';
+import { GetServerSidePropsContext, GetStaticPropsContext, WrapperProps, Config, Context } from "next-redux-wrapper";
 import { ParsedUrlQuery } from 'querystring';
 
 // HACK: Override types of `createWrapper`, because the `Store` type is not correct
@@ -20,7 +20,7 @@ export type CreateWrapper<TStore extends Store> = (
     callback: (context: GetStaticPropsContext & { store: TStore; }) => void | P_1
   ) => GetStaticProps<P_1, ParsedUrlQuery>;
 
-  withRedux: (Component: any) => React.FunctionComponent<WrapperProps> & {
+  withRedux: (Component: any) => FunctionComponent<WrapperProps> & {
     getInitialProps?(context: NextPageContext<any, AnyAction>): WrapperProps | Promise<WrapperProps>;
   };
 };

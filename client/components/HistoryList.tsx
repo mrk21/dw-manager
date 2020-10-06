@@ -1,22 +1,30 @@
-import React, { FC, useState } from 'react';
-import { shallowEqual } from 'react-redux';
-import { useAppSelector, useAppDispatch, useDidMount } from '@/hooks';
+import { FC, useState, useEffect } from 'react';
+import { useAppSelector, useAppDispatch } from '@/hooks';
 import { fetchHistoryList, historySelector } from '@/modules/history';
-import { APIError } from '@/entities/APIError';
-import HistoryTagList from '@/components/HistoryTagList'
+import { JsonAPIError } from '@/entities/JsonAPIError';
+import { HistoryTagList } from '@/components/HistoryTagList'
 
-const HistoryList: FC = () => {
-  const dispatch = useAppDispatch();
-  const [errors, setErrors] = useState<APIError[]>();
+export const HistoryList: FC = () => {
   const [loading, setLoading] = useState(true);
-  const histories = useAppSelector(historySelector.selectAll, shallowEqual);
+  const [errors, setErrors] = useState<JsonAPIError[]>();
 
-  useDidMount(async () => {
-    setLoading(true);
-    const e = await dispatch(fetchHistoryList());
-    setLoading(false);
-    if (e) setErrors(e);
-  });
+  const dispatch = useAppDispatch();
+  const histories = useAppSelector(historySelector.selectAll);
+
+  useEffect(() => {
+    let cleanuped = false;
+
+    const fetchData = async () => {
+      setLoading(true);
+      const e = await dispatch(fetchHistoryList());
+      if (cleanuped) return;
+      setLoading(false);
+      if (e) setErrors(e);
+    };
+    fetchData();
+
+    return () => { cleanuped = true; };
+  }, []);
 
   if (loading) {
     return (
@@ -47,5 +55,3 @@ const HistoryList: FC = () => {
     </ul>
   );
 };
-
-export default HistoryList;

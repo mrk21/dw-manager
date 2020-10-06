@@ -1,36 +1,48 @@
-import React, { FC, useState } from 'react';
-import { shallowEqual } from 'react-redux';
-import { useAppSelector, useAppDispatch, useDidMount } from '@/hooks';
-import { fetchTag, tagSelector } from '@/modules/tag';
+import { FC, useState, useEffect } from 'react';
+import { useAppSelector, useAppDispatch } from '@/hooks';
+import { fetchTag, selectTagById } from '@/modules/tag';
 import { History } from '@/entities/History';
 import { compact, flatten } from '@/libs';
-import { APIError } from '@/entities/APIError';
+import { JsonAPIError } from '@/entities/JsonAPIError';
 
-export type HistoryTagListProps = {
+type Props = {
   history: History
 };
 
-const HistoryTagList: FC<HistoryTagListProps> = ({ history }) => {
-  const dispatch = useAppDispatch();
-  const [errors, setErrors] = useState<APIError[]>();
+export const HistoryTagList: FC<Props> = ({ history }) => {
   const [loading, setLoading] = useState(true);
-  const tagIds = history.relationships.tags.data.map(({ id }) => id);
-  const tags = useAppSelector((state) => (
-    compact(
-      tagIds.map((id) => tagSelector.selectById(state, id))
-    )
-  ), shallowEqual);
+  const [errors, setErrors] = useState<JsonAPIError[]>();
 
-  useDidMount(async () => {
-    setLoading(true);
-    const e = flatten(compact(
-      await Promise.all(
-        tagIds.map((id) => dispatch(fetchTag(id)))
-      )
-    ));
-    if (e.length > 0) setErrors(e);
-    setLoading(false);
-  });
+  const dispatch = useAppDispatch();
+  const tagIds = history.relationships.tags.data.map(({ id }) => id);
+  const tags = compact(tagIds.map((id) =>
+    useAppSelector((state) => selectTagById(state, id))
+  ));
+
+  useEffect(() => {
+    let cleanuped = false;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const e = flatten(compact(
+          await Promise.all(
+            tagIds.map((id) => dispatch(fetchTag(id)))
+          )
+        ));
+        if (cleanuped) return;
+        if (e.length > 0) setErrors(e);
+        setLoading(false);
+      }
+      catch(e) {
+        console.error(e);
+        setLoading(false);
+      }
+    };
+    fetchData();
+
+    return () => { cleanuped = true; };
+  }, []);
 
   if (loading) {
     return (
@@ -56,5 +68,3 @@ const HistoryTagList: FC<HistoryTagListProps> = ({ history }) => {
     </ul>
   );
 };
-
-export default HistoryTagList;

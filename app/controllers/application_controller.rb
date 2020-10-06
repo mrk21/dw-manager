@@ -1,14 +1,33 @@
 class ApplicationController < ActionController::Base
   rescue_from StandardError, with: :render_error_response
 
+  module BatchedRequest
+    class Error < StandardError; end
+    class TooManyRequestError < Error; end
+    REQUEST_ERRORS = [
+      ActiveRecord::RecordNotFound,
+    ].freeze
+  end
+
   protected
 
   # GET /resources/batched/:ids
-  # type Response = {
-  #   [key:string]: JsonApiResponse;
+  # type JsonAPIBatchedResponse = {
+  #   data: {
+  #     [key:string]: JsonAPIResponse;
+  #   };
   # };
-  def batch_response(scope)
-    ids = params[:ids].split(',').uniq
+  # @example
+  #   class ResourcesController < ApplicationController
+  #     def batch_show
+  #       batch_response(Resource.where(is_archived: false), max_size: 30) do |record|
+  #         ResourceSerializer.new(record).serializable_hash
+  #       end
+  #     end
+  #   end
+  def batch_response(scope, max_size: 100)
+    ids = params[:ids].split(',').map(&:strip).uniq
+    raise BatchedRequest::TooManyRequestError if ids.size > max_size
     records = scope.where(id: ids)
     records = Hash[*records.map { |r| [r.id.to_s, r] }.flatten(1)]
     response = ids.map do |id|
@@ -16,18 +35,32 @@ class ApplicationController < ActionController::Base
         record = records[id]
         raise ActiveRecord::RecordNotFound if record.nil?
         [id, yield(record)]
-      rescue => e
+      rescue *BatchedRequest::REQUEST_ERRORS => e
         [id, error_response(e)[:json]]
       end
     end
-    render json: Hash[*response.flatten(1)]
+    render json: {
+      data: Hash[*response.flatten(1)]
+    }
   end
 
   def render_error_response(e)
-    response = error_response(e)
-    render response
+    render error_response(e)
   end
 
+  # type Error = NotFoundError | TooManyRequestError | InternalServerError;
+  # type NotFoundError = {
+  #   code: 'not_found';
+  #   title: string;
+  # };
+  # type TooManyRequestError = {
+  #   code: 'too_many_request_error';
+  #   title: string;
+  # };
+  # type InternalServerError = {
+  #   code: 'internal_server_error';
+  #   title: string;
+  # };
   def error_response(e)
     raise e if Rails.env.development? && params[:_debug] == '1'
     case e
@@ -37,9 +70,19 @@ class ApplicationController < ActionController::Base
         status: 404,
         json: {
           errors: [
-            status: '404',
-            code: '404',
+            code: 'not_found_error',
             title: 'Not Found',
+          ]
+        }
+      }
+    when BatchedRequest::TooManyRequestError then
+      Rails.logger.warn(e.full_message)
+      {
+        status: 400,
+        json: {
+          errors: [
+            code: 'too_many_request_error',
+            title: 'Too many requests',
           ]
         }
       }
@@ -49,8 +92,7 @@ class ApplicationController < ActionController::Base
         status: 500,
         json: {
           errors: [
-            status: '500',
-            code: '500',
+            code: 'internal_server_error',
             title: 'Internal Server Error',
           ]
         }

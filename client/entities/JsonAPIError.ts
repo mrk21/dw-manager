@@ -1,11 +1,10 @@
 import * as t from 'io-ts';
 
-export const APIError = t.type({
-  status: t.string,
+export const JsonAPIError = t.type({
   code: t.string,
   title: t.string,
   detail: t.union([ t.object, t.undefined ]),
   meta: t.union([ t.object, t.undefined ]),
 });
 
-export type APIError = t.TypeOf<typeof APIError>;
+export type JsonAPIError = t.TypeOf<typeof JsonAPIError>;

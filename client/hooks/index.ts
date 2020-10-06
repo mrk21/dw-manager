@@ -1,4 +1,3 @@
-import { useEffect, EffectCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/modules/root';
 import { AppDispatch } from '@/store';
@@ -9,5 +8,3 @@ export const useAppSelector = <Result>(
 ) => useSelector(selector, equalityFn);
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
-
-export const useDidMount = (callback: Function) => useEffect(() => { callback() }, []);

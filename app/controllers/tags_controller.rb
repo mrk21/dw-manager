@@ -10,7 +10,7 @@ class TagsController < ApplicationController
   end
 
   def batch_show
-    batch_response(Tag) do |record|
+    batch_response(Tag, max_size: 1000) do |record|
       TagSerializer.new(record).serializable_hash
     end
   end
