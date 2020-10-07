@@ -8,6 +8,8 @@
     "type-check": "tsc"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "@reduxjs/toolkit": "^1.4.0",
     "@types/lodash": "^4.14.161",
     "fp-ts": "^2.8.3",

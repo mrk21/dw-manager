@@ -1,3 +1,4 @@
+import * as t from 'io-ts';
 import { Tag } from '@/entities/Tag';
 import { JsonAPIError } from '@/entities/JsonAPIError';
 import { decodeJsonAPIArrayResponse } from '@/entities/JsonAPIArrayResponse';
@@ -6,7 +7,7 @@ import { decodeJsonAPIBatchedResponse } from '@/entities/JsonAPIBatchedResponse'
 export async function getTagList() {
   const response = await fetch('http://localhost:4000/tags');
   const json = await response.json();
-  return decodeJsonAPIArrayResponse(json, { data: Tag, error: JsonAPIError });
+  return decodeJsonAPIArrayResponse(json, { data: Tag, error: JsonAPIError, meta: t.undefined });
 };
 
 export async function getTagBatched(ids: string[]) {

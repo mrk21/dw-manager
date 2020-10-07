@@ -3,10 +3,13 @@ import { useAppSelector, useAppDispatch } from '@/hooks';
 import { fetchHistoryList, historySelector } from '@/modules/history';
 import { JsonAPIError } from '@/entities/JsonAPIError';
 import { HistoryTagList } from '@/components/HistoryTagList'
+import Pagination from '@material-ui/lab/Pagination';
 
 export const HistoryList: FC = () => {
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<JsonAPIError[]>();
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
 
   const dispatch = useAppDispatch();
   const histories = useAppSelector(historySelector.selectAll);
@@ -16,21 +19,16 @@ export const HistoryList: FC = () => {
 
     const fetchData = async () => {
       setLoading(true);
-      const e = await dispatch(fetchHistoryList());
+      const { errors, meta } = await dispatch(fetchHistoryList({ page, per: 20 }));
       if (cleanuped) return;
       setLoading(false);
-      if (e) setErrors(e);
+      if (errors) setErrors(errors);
+      setTotalPage(meta.page.data.total);
     };
     fetchData();
 
     return () => { cleanuped = true; };
-  }, []);
-
-  if (loading) {
-    return (
-      <p>loading...</p>
-    );
-  }
+  }, [page]);
 
   if (errors) {
     return (
@@ -43,15 +41,22 @@ export const HistoryList: FC = () => {
   }
 
   return (
-    <ul>
-      {histories.map((history) => (
-        <li key={history.id}>
-          <b>{history.attributes.date}:</b>&nbsp;
-          <span>{history.attributes.title}</span>&nbsp;
-          <span>{history.attributes.amount}</span>
-          <HistoryTagList history={history} />
-        </li>
-      ))}
-    </ul>
+    <>
+      <Pagination count={totalPage} page={page} onChange={(_, page) => { setPage(page) }} />
+      {loading ? (
+        <p>loading...</p>
+      ) : (
+        <ul>
+          {histories.map((history) => (
+            <li key={history.id}>
+              <b>{history.attributes.date}:</b>&nbsp;
+              <span>{history.attributes.title}</span>&nbsp;
+              <span>{history.attributes.amount}</span>
+              <HistoryTagList history={history} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   );
 };

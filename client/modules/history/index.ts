@@ -1,7 +1,6 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AppThunkAction } from '@/store';
+import { AppDispatch } from '@/store';
 import { History } from '@/entities/History';
-import { JsonAPIError } from '@/entities/JsonAPIError';
 import * as historyAPI from '@/api/histories';
 import { RootState } from '@/modules/root';
 import { compare } from '@/libs';
@@ -31,8 +30,8 @@ export const { historyAdded, historyReceived } = historySlice.actions;
 
 export const historySelector = historyAdapter.getSelectors((state: RootState) => state.history);
 
-export const fetchHistoryList = (): AppThunkAction<JsonAPIError[] | undefined> => async (dispatch) => {
-  const result = await historyAPI.getHistoryList();
-  if (result.data) dispatch(historyReceived(result.data));
-  return result.errors;
+export const fetchHistoryList = ({ page = 1, per = 20 }: { page: number, per: number }) => async (dispatch: AppDispatch) => {
+  const { data, errors, meta } = await historyAPI.getHistoryList({ page, per });
+  if (data) dispatch(historyReceived(data));
+  return { errors, meta };
 };

@@ -1,7 +1,6 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AppDispatch, AppThunkAction } from '@/store';
+import { AppDispatch } from '@/store';
 import { Tag } from '@/entities/Tag';
-import { JsonAPIError } from '@/entities/JsonAPIError';
 import * as tagAPI from '@/api/tags';
 import { RootState } from '@/modules/root';
 import { batchRequest } from '@/libs/batchRequest';
@@ -35,25 +34,25 @@ const tagSelector = tagAdapter.getSelectors((state: RootState) => state.tag);
 export const selectTagById = tagSelector.selectById;
 
 // Operations
-export const fetchTagList = (): AppThunkAction<JsonAPIError[] | undefined> => async (dispatch) => {
-  const result = await tagAPI.getTagList();
-  if (result.data) {
-    dispatch(tagReceived(result.data));
+export const fetchTagList = () => async (dispatch: AppDispatch) => {
+  const { data, errors } = await tagAPI.getTagList();
+  if (data) {
+    dispatch(tagReceived(data));
   }
-  return result.errors;
+  return errors;
 };
 
 const _fetchTag = batchRequest(
   (dispatch: AppDispatch) => async (ids: string[]) => {
-    const results = await tagAPI.getTagBatched(ids);
-    if (results.data) {
-      const tags = compact(Object.values(results.data).map(({ data }) => data));
+    const { data, errors } = await tagAPI.getTagBatched(ids);
+    if (data) {
+      const tags = compact(Object.values(data).map(({ data }) => data));
       if (tags.length > 0) dispatch(tagAddedMany(tags));
     }
-    if (results.errors) {
-      console.error(results.errors);
+    if (errors) {
+      console.error(errors);
     }
-    return results.data;
+    return data;
   },
   (id) => id
 )({
@@ -61,7 +60,7 @@ const _fetchTag = batchRequest(
   max: 1000,
 });
 
-export const fetchTag = (id: string): AppThunkAction<JsonAPIError[] | undefined> => async (dispatch) => {
-  const result = await _fetchTag(dispatch)(id);
-  return result.errors;
+export const fetchTag = (id: string) => async (dispatch: AppDispatch) => {
+  const { errors } = await _fetchTag(dispatch)(id);
+  return errors;
 };
