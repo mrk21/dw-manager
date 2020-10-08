@@ -4,11 +4,11 @@ class SimpleSerializer
   end
 
   def serializable_hash
-    @obj.deep_transform_keys { |k| k.to_s.camelize(:lower).to_sym }
+    @obj.as_json.deep_transform_keys { |k| k.to_s.camelize(:lower).to_sym }
   end
 
-  def as_json(_options = nil)
-    serializable_hash
+  def as_json(options = nil)
+    serializable_hash.as_json(options)
   end
 
   def to_json

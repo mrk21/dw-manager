@@ -1,27 +1,34 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, ChangeEvent, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/hooks';
 import { fetchHistoryList, historySelector } from '@/modules/history';
 import { JsonAPIError } from '@/entities/JsonAPIError';
 import { HistoryTagList } from '@/components/HistoryTagList'
 import Pagination from '@material-ui/lab/Pagination';
 import { PaginationProps } from '@material-ui/lab/Pagination/Pagination';
+import { throttle } from '@/libs';
 
 export const HistoryList: FC = () => {
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<JsonAPIError[]>();
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
+  const [condition, setCondition] = useState('');
+
+  const setConditionThrottledRef = useRef(throttle((value: string) => {
+    setCondition(value);
+  }, 2000));
 
   const dispatch = useAppDispatch();
   const histories = useAppSelector(historySelector.selectAll);
-  const onChange: PaginationProps['onChange'] = (_, page) => setPage(page);
+  const onChangePage: PaginationProps['onChange'] = (_, page) => setPage(page);
+  const onInputCondition = (e: ChangeEvent<HTMLInputElement>) => setConditionThrottledRef.current(e.target.value);
 
   useEffect(() => {
     let cleanuped = false;
 
     const fetchData = async () => {
       setLoading(true);
-      const { errors, meta } = await dispatch(fetchHistoryList({ page }));
+      const { errors, meta } = await dispatch(fetchHistoryList({ condition, page }));
       if (cleanuped) return;
       setLoading(false);
       if (errors) setErrors(errors);
@@ -30,7 +37,7 @@ export const HistoryList: FC = () => {
     fetchData();
 
     return () => { cleanuped = true; };
-  }, [page]);
+  }, [page, condition]);
 
   if (errors) {
     return (
@@ -44,7 +51,8 @@ export const HistoryList: FC = () => {
 
   return (
     <>
-      <Pagination count={totalPage} page={page} onChange={onChange} />
+      <input type="text" size={100} defaultValue={condition} onInput={onInputCondition} onChange={onInputCondition} />
+      <Pagination count={totalPage} page={page} onChange={onChangePage} />
       {loading ? (
         <p>loading...</p>
       ) : (

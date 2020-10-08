@@ -1,6 +1,8 @@
 class Filter < ApplicationRecord
   def matched_histories
-    History.where('title REGEXP ?', condition)
+    histories = History.all
+    histories = histories.where('title REGEXP ?', condition) if condition.present?
+    histories
   end
 
   # @param tags [Array<Tag> | Relation<Tag>]
