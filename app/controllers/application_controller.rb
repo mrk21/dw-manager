@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
     class Error < StandardError; end
     class TooManyRequestError < Error; end
     REQUEST_ERRORS = [
-      ActiveRecord::RecordNotFound,
+      ActiveRecord::RecordNotFound
     ].freeze
   end
 
@@ -70,8 +70,7 @@ class ApplicationController < ActionController::Base
         status: 404,
         json: {
           errors: [
-            code: 'not_found_error',
-            title: 'Not Found',
+            NotFoundErrorSerializer.new.serializable_hash
           ]
         }
       }
@@ -81,8 +80,7 @@ class ApplicationController < ActionController::Base
         status: 400,
         json: {
           errors: [
-            code: 'too_many_request_error',
-            title: 'Too many requests',
+            TooManyRequestErrorSerializer.new.serializable_hash
           ]
         }
       }
@@ -92,8 +90,7 @@ class ApplicationController < ActionController::Base
         status: 500,
         json: {
           errors: [
-            code: 'internal_server_error',
-            title: 'Internal Server Error',
+            InternalServerErrorSerializer.new.serializable_hash
           ]
         }
       }

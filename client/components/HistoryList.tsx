@@ -4,6 +4,7 @@ import { fetchHistoryList, historySelector } from '@/modules/history';
 import { JsonAPIError } from '@/entities/JsonAPIError';
 import { HistoryTagList } from '@/components/HistoryTagList'
 import Pagination from '@material-ui/lab/Pagination';
+import { PaginationProps } from '@material-ui/lab/Pagination/Pagination';
 
 export const HistoryList: FC = () => {
   const [loading, setLoading] = useState(true);
@@ -13,13 +14,14 @@ export const HistoryList: FC = () => {
 
   const dispatch = useAppDispatch();
   const histories = useAppSelector(historySelector.selectAll);
+  const onChange: PaginationProps['onChange'] = (_, page) => setPage(page);
 
   useEffect(() => {
     let cleanuped = false;
 
     const fetchData = async () => {
       setLoading(true);
-      const { errors, meta } = await dispatch(fetchHistoryList({ page, per: 20 }));
+      const { errors, meta } = await dispatch(fetchHistoryList({ page }));
       if (cleanuped) return;
       setLoading(false);
       if (errors) setErrors(errors);
@@ -42,7 +44,7 @@ export const HistoryList: FC = () => {
 
   return (
     <>
-      <Pagination count={totalPage} page={page} onChange={(_, page) => { setPage(page) }} />
+      <Pagination count={totalPage} page={page} onChange={onChange} />
       {loading ? (
         <p>loading...</p>
       ) : (
