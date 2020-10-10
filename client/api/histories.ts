@@ -1,7 +1,6 @@
 import * as t from 'io-ts';
 import { decodeJsonAPIArrayResponse } from '@/entities/JsonAPIArrayResponse';
 import { History } from '@/entities/History';
-import { JsonAPIError } from '@/entities/JsonAPIError';
 import { OffsetPagination } from '@/entities/OffsetPagination';
 
 const ListMeta = t.type({
@@ -11,5 +10,5 @@ const ListMeta = t.type({
 export async function getHistoryList({ condition = '', page = 1, per = 20 }: { condition?: string, page?: number, per?: number }) {
   const response = await fetch(`http://localhost:4000/histories?condition=${condition}&page=${page}&per=${per}`);
   const json = await response.json();
-  return decodeJsonAPIArrayResponse(json, { data: History, error: JsonAPIError, meta: ListMeta });
+  return decodeJsonAPIArrayResponse(json, { data: History, meta: ListMeta });
 };

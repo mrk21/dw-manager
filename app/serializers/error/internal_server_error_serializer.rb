@@ -1,4 +1,4 @@
-class InternalServerErrorSerializer < SimpleSerializer
+class Error::InternalServerErrorSerializer < SimpleSerializer
   def initialize
     super({
       code: 'internal_server_error',

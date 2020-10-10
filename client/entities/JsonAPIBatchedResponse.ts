@@ -1,26 +1,24 @@
 import * as t from 'io-ts';
 import { isLeft } from 'fp-ts/lib/Either'
 import { JsonAPIResponse } from './JsonAPIResponse';
-import { JsonAPIError } from './JsonAPIError';
 import { IoTsValidationError } from '@/libs';
 
-class Type<Data, Error> {
-  decoder(types: { data: t.Type<Data>, error: t.Type<Error> }) {
+class Type<Data> {
+  decoder(types: { data: t.Type<Data> }) {
     return JsonAPIResponse({
-       data: t.record(t.string, JsonAPIResponse(types)),
-       error: JsonAPIError
+       data: t.record(t.string, JsonAPIResponse(types))
     });
   }
 }
 
-export const JsonAPIBatchedResponse = <Data, Error>(types: { data: t.Type<Data>, error: t.Type<Error> }) => {
-  const type = new Type<Data, Error>();
+export const JsonAPIBatchedResponse = <Data>(types: { data: t.Type<Data> }) => {
+  const type = new Type<Data>();
   return type.decoder(types);
 };
 
-export type JsonAPIBatchedResponse<Data, Error> = t.TypeOf<ReturnType<Type<Data, Error>['decoder']>>;
+export type JsonAPIBatchedResponse<Data> = t.TypeOf<ReturnType<Type<Data>['decoder']>>;
 
-export function decodeJsonAPIBatchedResponse<Data, Error>(object: unknown, types: { data: t.Type<Data>, error: t.Type<Error> }) {
+export function decodeJsonAPIBatchedResponse<Data>(object: unknown, types: { data: t.Type<Data> }) {
   const either = JsonAPIBatchedResponse(types).decode(object);
   if (isLeft(either)) throw new IoTsValidationError(either);
   return either.right;

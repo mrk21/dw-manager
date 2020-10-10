@@ -1,13 +1,13 @@
 class HistoriesController < ApplicationController
   def index
     filter = Filter.new(filter_params)
-    records = filter.matched_histories
-    records = records.includes(:history_tags)
-    records = records.page(page_params[:page]).per(page_params[:per])
-    records = records.order(date: :desc)
-    serializer = HistorySerializer.new(records, {
+    histories = filter.matched_histories
+    histories = histories.includes(:history_tags)
+    histories = histories.page(page_params[:page]).per(page_params[:per])
+    histories = histories.order(date: :desc)
+    serializer = HistorySerializer.new(histories, {
       meta: {
-        page: OffsetPaginationSerializer.new(records)
+        page: OffsetPaginationSerializer.new(histories)
       }
     })
     render json: serializer.serializable_hash
@@ -15,16 +15,9 @@ class HistoriesController < ApplicationController
 
   private
 
-  def page_params
-    @page_params ||= {
-      page: params[:page] || 1,
-      per: params[:per] || 20,
-    }
-  end
-
   def filter_params
     @filter_params ||= {
-      condition: params[:condition]
+      condition: params[:condition].to_s.strip
     }
   end
 end

@@ -19,6 +19,8 @@ require "action_cable/engine"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+require_relative '../lib/simple_serializer'
+
 module DwManager
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -35,8 +37,8 @@ module DwManager
     # CORS
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins "*"
-        resource "*",
+        origins '*'
+        resource '*',
           headers: :any,
           methods: [:get, :post, :put, :patch, :options, :head]
       end

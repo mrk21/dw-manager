@@ -1,15 +1,63 @@
 class ApplicationController < ActionController::Base
+  skip_forgery_protection
+
   rescue_from StandardError, with: :render_error_response
+
+  class ValidationFailedError < StandardError
+    attr_reader :type
+    attr_reader :path
+    attr_reader :errors
+
+    def initialize(type:, path:, errors:)
+      @type = type
+      @path = path
+      @errors = errors
+    end
+
+    def self.capture(type:, path:)
+      yield
+    rescue ActiveRecord::RecordInvalid => e
+      raise new(type: type, path: path, errors: e.record.errors)
+    rescue => e
+      raise e
+    end
+  end
 
   module BatchedRequest
     class Error < StandardError; end
-    class TooManyRequestError < Error; end
+
+    class TooManyRequestError < Error
+      attr_reader :size
+      attr_reader :limit
+
+      def initialize(size:, limit:)
+        @size = size
+        @limit = limit
+        super("size: #{size}, limit: #{limit}")
+      end
+    end
+
     REQUEST_ERRORS = [
-      ActiveRecord::RecordNotFound
+      ActiveRecord::RecordNotFound,
+      ValidationFailedError,
     ].freeze
   end
 
   protected
+
+  def page_params
+    @page_params ||= {
+      page: (params[:page] || 1).to_i,
+      per: (params[:per] || 20).to_i,
+    }
+  end
+
+  def json_params
+    @json_params ||= ActionController::Parameters.new(
+      JSON.parse(request.body.read)
+        .deep_transform_keys { |k| k.to_s.underscore.to_sym }
+    )
+  end
 
   # GET /resources/batched/:ids
   # type JsonAPIBatchedResponse = {
@@ -20,14 +68,14 @@ class ApplicationController < ActionController::Base
   # @example
   #   class ResourcesController < ApplicationController
   #     def batch_show
-  #       batch_response(Resource.where(is_archived: false), max_size: 30) do |record|
+  #       batch_response(Resource.where(is_archived: false), limit: 30) do |record|
   #         ResourceSerializer.new(record).serializable_hash
   #       end
   #     end
   #   end
-  def batch_response(scope, max_size: 100)
+  def batch_response(scope, limit: 100)
     ids = params[:ids].split(',').map(&:strip).uniq
-    raise BatchedRequest::TooManyRequestError if ids.size > max_size
+    raise BatchedRequest::TooManyRequestError.new(size: ids.size, limit: limit) if ids.size > limit
     records = scope.where(id: ids)
     records = Hash[*records.map { |r| [r.id.to_s, r] }.flatten(1)]
     response = ids.map do |id|
@@ -48,19 +96,6 @@ class ApplicationController < ActionController::Base
     render error_response(e)
   end
 
-  # type Error = NotFoundError | TooManyRequestError | InternalServerError;
-  # type NotFoundError = {
-  #   code: 'not_found';
-  #   title: string;
-  # };
-  # type TooManyRequestError = {
-  #   code: 'too_many_request_error';
-  #   title: string;
-  # };
-  # type InternalServerError = {
-  #   code: 'internal_server_error';
-  #   title: string;
-  # };
   def error_response(e)
     raise e if Rails.env.development? && params[:_debug] == '1'
     case e
@@ -69,8 +104,16 @@ class ApplicationController < ActionController::Base
       {
         status: 404,
         json: {
+          errors: [ Error::NotFoundSerializer.new.serializable_hash ]
+        }
+      }
+    when ValidationFailedError then
+      Rails.logger.warn(e.full_message)
+      {
+        status: 400,
+        json: {
           errors: [
-            NotFoundErrorSerializer.new.serializable_hash
+            Error::ValidationFailedSerializer.new(e).serializable_hash
           ]
         }
       }
@@ -79,19 +122,15 @@ class ApplicationController < ActionController::Base
       {
         status: 400,
         json: {
-          errors: [
-            TooManyRequestErrorSerializer.new.serializable_hash
-          ]
+          errors: [ Error::TooManyRequestSerializer.new(size: e.size, limit: e.limit).serializable_hash ]
         }
       }
-    when StandardError then
+    else
       Rails.logger.error(e.full_message)
       {
         status: 500,
         json: {
-          errors: [
-            InternalServerErrorSerializer.new.serializable_hash
-          ]
+          errors: [ Error::InternalServerErrorSerializer.new.serializable_hash ]
         }
       }
     end

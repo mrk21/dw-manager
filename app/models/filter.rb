@@ -1,4 +1,7 @@
 class Filter < ApplicationRecord
+  validates :name, length: { in: 1..255 }
+  validates :condition, presence: true
+
   def matched_histories
     histories = History.all
     histories = histories.where('title REGEXP ?', condition) if condition.present?
