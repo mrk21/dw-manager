@@ -3,6 +3,7 @@ import { useAppDispatch } from '@/hooks';
 import { createFilter } from '@/modules/filter';
 import { ValidationFailedJsonAPIError } from '@/entities/JsonAPIError';
 import { ValidationError } from '@/components/ValidationError';
+import { successSet, successUnset, errorSet, errorUnset } from '@/modules/flash_message';
 
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -30,9 +31,15 @@ export const FilterCreationForm: FC<Props> = ({ condition, isOpen, onClose, onCh
     const result = await dispatch(createFilter({ name, condition }));
     if (result.errors) {
       const e = result.errors.filter((v): v is ValidationFailedJsonAPIError => v.code == 'validation_failed')[0];
+      dispatch(errorUnset());
+      dispatch(errorSet('Fail filter creation'));
       setErrors(e);
     }
-    else onClose(_);
+    else {
+      dispatch(successUnset());
+      dispatch(successSet('Filter created'));
+      onClose(_);
+    }
   }, [name, condition]);
 
   useEffect(() => {

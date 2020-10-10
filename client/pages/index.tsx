@@ -1,6 +1,7 @@
 import { NextPage } from 'next'
 import Head from 'next/head'
 import { HistoryList } from '@/components/HistoryList';
+import { FlashMessage } from '@/components/FlashMessage';
 
 const IndexPage: NextPage = () => {
   return (
@@ -11,6 +12,7 @@ const IndexPage: NextPage = () => {
       </Head>
       <h1>dw-manager</h1>
       <HistoryList />
+      <FlashMessage />
     </div>
   );
 };
