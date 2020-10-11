@@ -1,6 +1,7 @@
 class TagsController < ApplicationController
   def index
     tags = Tag.all
+    tags = tags.page(page_params[:page]).per(page_params[:per])
     render json: TagSerializer.new(tags).serializable_hash
   end
 

@@ -31,15 +31,14 @@ export const { tagAdded, tagAddedMany, tagReceived } = tagSlice.actions;
 
 // Selectors
 const tagSelector = tagAdapter.getSelectors((state: RootState) => state.tag);
+export const selectTags = tagSelector.selectAll;
 export const selectTagById = tagSelector.selectById;
 
 // Operations
-export const fetchTagList = () => async (dispatch: AppDispatch) => {
-  const { data, errors } = await tagAPI.getTagList();
-  if (data) {
-    dispatch(tagReceived(data));
-  }
-  return errors;
+export const fetchTagList = ({ page = 1, per = 20 }: { page?: number, per?: number }) => async (dispatch: AppDispatch) => {
+  const { data, errors, meta } = await tagAPI.getTagList({ page, per });
+  if (data) dispatch(tagReceived(data));
+  return { errors, meta };
 };
 
 const _fetchTag = batchRequest(

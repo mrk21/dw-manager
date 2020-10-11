@@ -46,7 +46,7 @@ class ApplicationController < ActionController::Base
   protected
 
   def page_params
-    @page_params ||= {
+    {
       page: (params[:page] || 1).to_i,
       per: (params[:per] || 20).to_i,
     }

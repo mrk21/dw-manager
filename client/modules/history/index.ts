@@ -30,8 +30,26 @@ export const { historyAdded, historyReceived } = historySlice.actions;
 
 export const historySelector = historyAdapter.getSelectors((state: RootState) => state.history);
 
-export const fetchHistoryList = ({ condition = '', page = 1, per = 20 }: { condition?: string, page?: number, per?: number }) => async (dispatch: AppDispatch) => {
-  const { data, errors, meta } = await historyAPI.getHistoryList({ condition, page, per });
+export const fetchHistoryList = ({
+  condition = '',
+  tagId = '',
+  filterId = '',
+  page = 1,
+  per = 20
+}: {
+  condition?: string;
+  tagId?: string;
+  filterId?: string;
+  page?: number;
+  per?: number;
+}) => async (dispatch: AppDispatch) => {
+  const { data, errors, meta } = await historyAPI.getHistoryList({
+    condition,
+    tagId,
+    filterId,
+    page,
+    per
+  });
   if (data) dispatch(historyReceived(data));
   return { errors, meta };
 };

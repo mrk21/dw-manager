@@ -1,31 +1,37 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export type FlashMessageState = {
+  count: number;
   success?: string;
   error?: string;
 };
 
-const initialState: FlashMessageState = {};
+const initialState: FlashMessageState = {
+  count: 0,
+};
 
 const flashMessageSlice = createSlice({
   name: 'flash_message',
   initialState,
   reducers: {
-    errorSet(state, { payload }: PayloadAction<string>) {
+    flashMessageErrorSet(state, { payload }: PayloadAction<string>) {
+      state.count += 1;
       state.error = payload;
+      state.success = undefined;
     },
-    errorUnset(state) {
+    flashMessageSuccessSet(state, { payload }: PayloadAction<string>) {
+      state.count += 1;
+      state.success = payload;
       state.error = undefined;
     },
-    successSet(state, { payload }: PayloadAction<string>) {
-      state.success = payload;
-    },
-    successUnset(state) {
+    flashMessageUnset(state) {
+      state.count = 0;
       state.success = undefined;
+      state.error = undefined;
     },
   },
 });
 
 export const flashMessageReducer = flashMessageSlice.reducer;
 
-export const { errorSet, errorUnset, successSet, successUnset } = flashMessageSlice.actions;
+export const { flashMessageErrorSet, flashMessageSuccessSet, flashMessageUnset } = flashMessageSlice.actions;
