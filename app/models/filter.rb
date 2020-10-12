@@ -1,11 +1,23 @@
+require 'search_query'
+
 class Filter < ApplicationRecord
   validates :name, length: { in: 1..255 }
   validates :condition, presence: true
 
   def matched_histories
     histories = History.all
-    histories = histories.where('title REGEXP ?', condition) if condition.present?
+    histories = histories.where(parsed_condition.to_arel) if condition.present?
     histories
+  end
+
+  def parsed_condition
+    parser = SearchQuery::Parser.new(
+      SearchQuery::Context.new(
+        table: Arel::Table.new(:histories),
+        text_column: :title,
+      )
+    )
+    parser.parse(condition)
   end
 
   # @param tags [Array<Tag> | Relation<Tag>]

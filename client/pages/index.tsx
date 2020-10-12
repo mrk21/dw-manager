@@ -6,6 +6,7 @@ import { FilterList } from '@/components/FilterList';
 import { FlashMessage } from '@/components/FlashMessage';
 import Grid from '@material-ui/core/Grid';
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 const IndexPage: NextPage = () => {
   const router = useRouter();
@@ -18,7 +19,7 @@ const IndexPage: NextPage = () => {
         <title>dw-manager</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <h1>dw-manager</h1>
+      <h1><Link href="/">dw-manager</Link></h1>
       <Grid container>
         <Grid item xs={2}>
           <TagList />

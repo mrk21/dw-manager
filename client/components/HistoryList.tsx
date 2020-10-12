@@ -62,7 +62,7 @@ export const HistoryList: FC<Props> = ({ tagId, filterId }) => {
       const { errors, meta } = await dispatch(fetchHistoryList({ condition, page, tagId, filterId }));
       if (cleanuped) return;
       setLoading(false);
-      if (errors) setErrors(errors);
+      setErrors(errors);
       if (meta) setTotalPage(meta.page.data.total);
     };
     fetchData();

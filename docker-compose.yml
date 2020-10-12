@@ -20,6 +20,7 @@ services:
     init: true
     command:
       prehook "0=rm -f tmp/pids/server.pid" --
+      prehook "1=bundle exec racc lib/search_query/parser.y.rb" --
       codep
         "1=rails s -p 3000 -b 0.0.0.0"
     depends_on:

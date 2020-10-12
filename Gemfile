@@ -50,3 +50,6 @@ gem 'jsonapi-serializer', '~> 2.1.0'
 
 # Pagination
 gem 'kaminari'
+
+# Parser generator
+gem 'racc'
