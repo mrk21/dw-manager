@@ -52,9 +52,10 @@ tag_convenience_store = Tag.create!(name: 'コンビニ')
 tag_subscription = Tag.create!(name: 'サブスクリプション')
 tag_supermarket = Tag.create!(name: 'スーパー')
 
-filter_convenience_store = Filter.create(name: 'コンビニ', condition: '.*コンビニ.*')
-filter_supermarket = Filter.create(name: 'スーパー', condition: '.*スーパー.*')
-filter_subscription = Filter.create(name: 'コンビニ', condition: 'X COMPANY PRODUCTS|HOO COM SERVICE Y')
+filter_convenience_store = Filter.create(name: 'コンビニ', condition: 'コンビニ')
+filter_supermarket = Filter.create(name: 'スーパー', condition: 'スーパー')
+filter_subscription = Filter.create(name: 'サブスクリプション', condition: '"X COMPANY PRODUCTS" OR "HOO SERVICE Y"')
+filter_without_food_and_daily_necessities = Filter.create(name: '食費・日用品以外', condition: '-スーパー -コンビニ')
 
 filter_convenience_store.tag_to_matched_histories!([tag_food, tag_convenience_store])
 filter_supermarket.tag_to_matched_histories!([tag_food, tag_supermarket])

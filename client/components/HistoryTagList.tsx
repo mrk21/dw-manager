@@ -5,6 +5,7 @@ import { History } from '@/entities/History';
 import { compact, flatten } from '@/libs';
 import { JsonAPIError } from '@/entities/JsonAPIError';
 import Chip from '@material-ui/core/Chip';
+import Link from 'next/link';
 
 type Props = {
   history: History
@@ -64,7 +65,7 @@ export const HistoryTagList: FC<Props> = ({ history }) => {
   return (
     <div>
       {tags.map((tag) => (
-        <Chip key={tag.id} size="small" label={tag.attributes.name} clickable />
+        <><Link href={`/?tag_id=${tag.id}`}><Chip key={tag.id} size="small" label={tag.attributes.name} clickable /></Link>&nbsp;</>
       ))}
     </div>
   );
