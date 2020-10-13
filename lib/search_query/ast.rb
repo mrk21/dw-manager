@@ -16,6 +16,9 @@ module SearchQuery::AST
 
   class Node
     attr_reader :context
+    attr_reader :store
+    attr_reader :parent
+    attr_reader :children
 
     # @param context [SearchQuery::Context]
     def initialize(context)
@@ -25,6 +28,28 @@ module SearchQuery::AST
     def to_arel
       raise NotImplementedError
     end
+
+    def init(parent: nil)
+      @parent = parent
+      @store = parent ? parent.store : {}
+      children.each do |child|
+        child.init(parent: self)
+      end
+    end
+  end
+
+  class Root < Node
+    def initialize(context, node)
+      super(context)
+      @node = node
+      @children = [@node]
+      init
+    end
+
+    def to_arel
+      context.on_to_arel(store)
+      @node.to_arel
+    end
   end
 
   class BinaryOP < Node
@@ -32,6 +57,7 @@ module SearchQuery::AST
       super(context)
       @lop = lop
       @rop = rop
+      @children = [@lop, @rop]
     end
   end
 
@@ -39,6 +65,7 @@ module SearchQuery::AST
     def initialize(context, op)
       super(context)
       @op = op
+      @children = [@op]
     end
   end
 
@@ -64,10 +91,11 @@ module SearchQuery::AST
     def initialize(context, node)
       super(context)
       @node = node
+      @children = [@node]
     end
 
     def to_arel
-      @node.to_arel
+      Arel::Nodes::Grouping.new(@node.to_arel)
     end
   end
 
@@ -75,10 +103,31 @@ module SearchQuery::AST
     def initialize(context, value)
       super(context)
       @value = value
+      @children = []
     end
 
     def to_arel
       context.table[context.text_column].matches("%#{@value}%")
+    end
+  end
+
+  class Attribute < Node
+    def initialize(context, attr, value)
+      super(context)
+      @attr = attr.to_sym
+      @value = value
+      @children = []
+    end
+
+    def init(parent: nil)
+      super
+      store[@attr] ||= { values: [] }
+      store[@attr][:values].push(@value)
+      @condition = context.attrs[@attr][context, store, @value]
+    end
+
+    def to_arel
+      Arel::Nodes::Grouping.new(@condition.for_arel)
     end
   end
 end

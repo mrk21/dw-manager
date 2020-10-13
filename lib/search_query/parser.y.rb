@@ -1,6 +1,9 @@
 class SearchQuery::Parser
 rule
-  start conditions
+  start root
+
+  root : conditions { result = AST::Root.new(@context, val[0]) }
+       ;
 
   conditions : condition
              | condition conditions           { result = AST::AND.new(@context, val[0], val[1]) }
@@ -20,6 +23,7 @@ rule
 
   condition_value : word
                   | group
+                  | attribute
                   ;
 
   word : word_value { result = AST::Word.new(@context, val[0]) }
@@ -29,6 +33,9 @@ rule
              | QUATED_WORD
              ;
 
+  attribute : ATTR_NAME ':' ATTR_VALUE { result = AST::Attribute.new(@context, val[0], val[2]) }
+            ;
+
   group : '(' conditions ')' { result = AST::Group.new(@context, val[1]) }
         ;
 end
@@ -36,7 +43,6 @@ end
 ---- header
 
 require 'strscan'
-require 'pp'
 
 ---- inner
 
@@ -47,38 +53,45 @@ end
 
 def parse(str)
   scanner = StringScanner.new(str)
-  @tokens = []
+  @q = []
+  attrs = @context.attrs.keys
   until scanner.eos?
     case
     when scanner.scan(/"[^"]+"/)
-      @tokens << [:QUATED_WORD, scanner.matched[1..-2]]
+      @q << [:QUATED_WORD, scanner.matched[1..-2]]
 
     when scanner.scan(/'[^']+'/)
-      @tokens << [:QUATED_WORD, scanner.matched[1..-2]]
+      @q << [:QUATED_WORD, scanner.matched[1..-2]]
 
-    when scanner.scan(/-/)
-      @tokens << [scanner.matched, scanner.matched]
+    when attrs.present? && scanner.scan(%r`(?<=\s|　|^)?(#{attrs.join('|')}):[^\s　]+(?=\s|　|$)?`)
+      attr, value = scanner.matched.split(':', 2)
+      @q << [:ATTR_NAME, attr]
+      @q << [':', ':']
+      @q << [:ATTR_VALUE, value]
+
+    when scanner.scan(/(?<=\s|　|^)-(?=[^\s　$])/)
+      @q << [scanner.matched, scanner.matched]
       while scanner.scan(/-/); end # ignore
 
-    when scanner.scan(/\s(AND|OR)(?=\s)/)
+    when scanner.scan(/(?<=\s|　|^)(AND|OR)(?=\s|　|$)/)
       matched = scanner.matched[1..-1]
-      @tokens << [matched.to_sym, matched]
-      while scanner.scan(/\s(AND|OR)(?=\s)/); end # ignore
+      @q << [matched.to_sym, matched]
+      while scanner.scan(/(?<=\s|　|^)(AND|OR)(?=\s|　|$)/); end # ignore
 
     when scanner.scan(/[\(|\)]/)
-      @tokens << [scanner.matched, scanner.matched]
+      @q << [scanner.matched, scanner.matched]
 
-    when scanner.scan(/[^\s"()-]+/)
-      @tokens << [:WORD, scanner.matched]
+    when scanner.scan(/[^\s　"()-]+/)
+      @q << [:WORD, scanner.matched]
 
     when scanner.scan(/./)
       # ignore
     end
   end
-  Rails.logger.debug @tokens.pretty_inspect
+  Rails.logger.debug @q.inspect
   do_parse
 end
 
 def next_token
-  @tokens.shift
+  @q.shift
 end

@@ -1,13 +1,38 @@
 module SearchQuery
   class Context
-    attr_reader :table
-    attr_reader :text_column
+    # @return [Arel::Table]
+    def table
+      raise NotImplementedError
+    end
 
-    # @param table [Arel::Table]
-    # @param text_column [String | Symbol]
-    def initialize(table:, text_column:)
-      @table = table
-      @text_column = text_column
+    # @return [Symbol]
+    def text_column
+      raise NotImplementedError
+    end
+
+    # @return [Hash<Symbol, (String) => AttributeCondition>]
+    def attrs
+      raise NotImplementedError
+    end
+
+    def on_to_arel(store)
+      # You may override
+    end
+
+    class AttributeCondition
+      attr_reader :context
+      attr_reader :store
+      attr_reader :value
+
+      def initialize(context, store, value)
+        @context = context
+        @store = store
+        @value = value
+      end
+
+      def for_arel
+        raise NotImplementedError
+      end
     end
   end
 end
