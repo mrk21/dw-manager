@@ -1,6 +1,6 @@
 import { NextPage } from 'next'
 import Head from 'next/head'
-import { HistoryList } from '@/components/HistoryList';
+import { HistorySearch } from '@/components/HistorySearch/HistorySearch';
 import { TagList } from '@/components/TagList';
 import { FilterList } from '@/components/FilterList';
 import { FlashMessage } from '@/components/FlashMessage';
@@ -25,7 +25,7 @@ const IndexPage: NextPage = () => {
           <TagList />
           <FilterList />
         </Grid>
-        <Grid item xs={10}><HistoryList tagId={tagId} filterId={filterId} /></Grid>
+        <Grid item xs={10}><HistorySearch tagId={tagId} filterId={filterId} /></Grid>
       </Grid>
       <FlashMessage />
     </div>

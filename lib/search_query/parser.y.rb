@@ -74,7 +74,7 @@ def parse(str)
       while scanner.scan(/-/); end # ignore
 
     when scanner.scan(/(?<=\s|　|^)(AND|OR)(?=\s|　|$)/)
-      matched = scanner.matched[1..-1]
+      matched = scanner.matched
       @q << [matched.to_sym, matched]
       while scanner.scan(/(?<=\s|　|^)(AND|OR)(?=\s|　|$)/); end # ignore
 

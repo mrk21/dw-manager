@@ -11,9 +11,7 @@ class Filter < ApplicationRecord
   end
 
   def parsed_condition
-    parser = SearchQuery::Parser.new(
-      ConditionQueryContext.new
-    )
+    parser = SearchQuery::Parser.new(ConditionQueryContext.new)
     parser.parse(condition)
   end
 
