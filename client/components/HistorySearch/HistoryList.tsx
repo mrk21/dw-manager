@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, Fragment } from 'react';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -15,8 +15,8 @@ export const HistoryList: FC<HistoryListProps> = ({ histories }) => {
   return (
     <List>
       {histories.map((history) => (
-        <>
-          <ListItem key={history.id}>
+        <Fragment key={history.id}>
+          <ListItem>
             <ListItemText>
               <b>{history.attributes.date}:</b>&nbsp;
               <span>{history.attributes.title}</span>&nbsp;
@@ -25,7 +25,7 @@ export const HistoryList: FC<HistoryListProps> = ({ histories }) => {
             </ListItemText>
           </ListItem>
           <Divider />
-        </>
+        </Fragment>
       ))}
     </List>
   );

@@ -9,20 +9,33 @@ class FiltersController < ApplicationController
     render json: serializer.serializable_hash
   end
 
+  def show
+    filter = Filter.find(params[:id])
+    render json: FilterSerializer.new(filter).serializable_hash
+  end
+
   def create
-    filter = Filter.new(new_filter_params)
+    filter = Filter.new(filter_params)
     ValidationFailedError.capture(type: 'filter', path: '/data') do
       filter.save!
     end
     render status: 201, json: FilterSerializer.new(filter)
   end
 
+  def update
+    filter = Filter.find(params[:id])
+    filter.assign_attributes(filter_params)
+    ValidationFailedError.capture(type: 'filter', path: '/data') do
+      filter.save!
+    end
+    render json: FilterSerializer.new(filter)
+  end
+
   private
 
-  def new_filter_params
+  def filter_params
     body = json_params.permit(
       data: [
-        :type,
         attributes: [
           :name,
           :condition,

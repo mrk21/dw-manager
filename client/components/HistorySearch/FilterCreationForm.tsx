@@ -1,9 +1,11 @@
 import { FC, useState, useEffect, useCallback, ChangeEvent } from 'react';
-import { useAppDispatch } from '@/hooks';
-import { createFilter } from '@/modules/filter';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import { createFilter, updateFilter } from '@/modules/filter';
 import { ValidationFailedJsonAPIError } from '@/entities/JsonAPIError';
 import { ValidationError } from '@/components/ValidationError';
 import { flashMessageSuccessSet, flashMessageErrorSet } from '@/modules/flash_message';
+import { filterSelector } from '@/modules/filter';
+import { cloneDeep } from '@/libs';
 
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -13,41 +15,64 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 type Props = {
+  filterId?: string;
   condition: string;
   isOpen: boolean;
   onClose: (_: any) => void;
   onChangeCondition: (value: string) => void;
 };
 
-export const FilterCreationForm: FC<Props> = ({ condition, isOpen, onClose, onChangeCondition }) => {
+export const FilterCreationForm: FC<Props> = ({ filterId, condition, isOpen, onClose, onChangeCondition }) => {
   const dispatch = useAppDispatch();
+  const filter = useAppSelector(state => filterSelector.selectById(state, filterId || ''))
 
   const [errors, setErrors] = useState<ValidationFailedJsonAPIError | undefined>();
-  const [name, setName] = useState('');
+  const [name, setName] = useState(filter ? filter.attributes.name : '');
 
   const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => setName(e.target.value), []);
   const onChangeCondition_ = useCallback((e: ChangeEvent<HTMLInputElement>) => onChangeCondition(e.target.value), []);
   const onCreate = useCallback(async (_: any) => {
-    const result = await dispatch(createFilter({ name, condition }));
-    if (result.errors) {
-      const e = result.errors.filter((v): v is ValidationFailedJsonAPIError => v.code == 'validation_failed')[0];
-      dispatch(flashMessageErrorSet('Filter creation failed'));
-      setErrors(e);
+    if (filterId && filter) {
+      const filter_ = cloneDeep(filter);
+      filter_.attributes.name = name;
+      filter_.attributes.condition = condition;
+      const result = await dispatch(updateFilter(filter_));
+      if (result.errors) {
+        const e = result.errors.filter((v): v is ValidationFailedJsonAPIError => v.code == 'validation_failed')[0];
+        dispatch(flashMessageErrorSet('Filter updating failed'));
+        setErrors(e);
+      }
+      else {
+        dispatch(flashMessageSuccessSet('Filter updating succeed'));
+        onClose(_);
+      }
     }
     else {
-      dispatch(flashMessageSuccessSet('Filter creation succeed'));
-      onClose(_);
+      const result = await dispatch(createFilter({ name, condition }));
+      if (result.errors) {
+        const e = result.errors.filter((v): v is ValidationFailedJsonAPIError => v.code == 'validation_failed')[0];
+        dispatch(flashMessageErrorSet('Filter creation failed'));
+        setErrors(e);
+      }
+      else {
+        dispatch(flashMessageSuccessSet('Filter creation succeed'));
+        onClose(_);
+      }
     }
   }, [name, condition]);
 
   useEffect(() => {
     return () => {
       if (!isOpen) {
-        setName('');
+        setName(filter ? filter.attributes.name : '');
         setErrors(undefined);
       }
     }
-  }, [isOpen]);
+  }, [filter, isOpen]);
+
+  useEffect(() => {
+    if (filter) setName(filter.attributes.name);
+  }, [filter]);
 
   return (
     <Dialog open={isOpen} onClose={onClose} aria-labelledby="form-dialog-title">
@@ -59,7 +84,7 @@ export const FilterCreationForm: FC<Props> = ({ condition, isOpen, onClose, onCh
           label="Name"
           type="text"
           fullWidth
-          defaultValue={name}
+          value={name}
           onChange={onChangeName}
         />
         <ValidationError errors={errors} attribute="name" />

@@ -5,13 +5,12 @@ import { TagList } from '@/components/TagList';
 import { FilterList } from '@/components/FilterList';
 import { FlashMessage } from '@/components/FlashMessage';
 import Grid from '@material-ui/core/Grid';
-import { useRouter } from 'next/router'
-import Link from 'next/link'
+import Link from 'next/link';
 
 const IndexPage: NextPage = () => {
-  const router = useRouter();
-  const tagId = router.query.tag_id as (string | undefined);
-  const filterId = router.query.filter_id as (string | undefined);
+  const query = new URLSearchParams(typeof location === 'undefined' ? '' : location.search);
+  const tagId = query.get('tag_id');
+  const filterId = query.get('filter_id');
 
   return (
     <div>
@@ -25,7 +24,12 @@ const IndexPage: NextPage = () => {
           <TagList />
           <FilterList />
         </Grid>
-        <Grid item xs={10}><HistorySearch tagId={tagId} filterId={filterId} /></Grid>
+        <Grid item xs={10}>
+          <HistorySearch
+            tagId={tagId ? tagId : undefined}
+            filterId={filterId ? filterId : undefined}
+          />
+        </Grid>
       </Grid>
       <FlashMessage />
     </div>

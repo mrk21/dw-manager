@@ -10,11 +10,12 @@ import InputLabel from '@material-ui/core/InputLabel';
 import { FilterCreationForm } from './FilterCreationForm';
 
 export type ConditionFormProps = {
+  filterId?: string;
   condition: string;
   onChange: (value: string) => any;
 };
 
-export const ConditionForm: FC<ConditionFormProps> = ({ condition, onChange }) => {
+export const ConditionForm: FC<ConditionFormProps> = ({ filterId, condition, onChange }) => {
   const onChange_ = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value), []);
   const onChangeForCreation_ = useCallback((value: string) => onChange(value), []);
   const onOpen = useCallback((_: any) => setIsOpend(true), []);
@@ -35,7 +36,6 @@ export const ConditionForm: FC<ConditionFormProps> = ({ condition, onChange }) =
           fullWidth={true}
           onFocus={onFocus}
           onBlur={onBlur}
-          defaultValue={condition}
           onInput={onChange_}
           onChange={onChange_}
           startAdornment={
@@ -51,6 +51,7 @@ export const ConditionForm: FC<ConditionFormProps> = ({ condition, onChange }) =
         />
       </FormControl>
       <FilterCreationForm
+        filterId={filterId}
         condition={condition}
         isOpen={isOpend}
         onClose={onClose}
