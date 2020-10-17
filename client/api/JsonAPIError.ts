@@ -10,7 +10,6 @@ export const GenericJsonAPIError = t.type({
 });
 export type GenericJsonAPIError = t.TypeOf<typeof GenericJsonAPIError>;
 
-
 export const ValidationFailedJsonAPIError = t.type({
   code: t.literal('validation_failed'),
   title: t.string,
@@ -23,9 +22,13 @@ export const ValidationFailedJsonAPIError = t.type({
 });
 export type ValidationFailedJsonAPIError = t.TypeOf<typeof ValidationFailedJsonAPIError>;
 
-
 export const JsonAPIError = t.union([
   GenericJsonAPIError,
   ValidationFailedJsonAPIError,
 ]);
 export type JsonAPIError = t.TypeOf<typeof JsonAPIError>;
+
+export const extractValidationFailed = (errors: JsonAPIError[]) => {
+  type VF = ValidationFailedJsonAPIError;
+  return errors.filter((e) => e.code === 'validation_failed')[0] as VF | undefined;
+};

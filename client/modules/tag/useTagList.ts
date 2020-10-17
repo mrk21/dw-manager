@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { fetchTag, selectTagById } from '@/modules/tag';
-import { JsonAPIError } from '@/entities/JsonAPIError';
+import { JsonAPIError } from '@/api/JsonAPIError';
 import { compact, flatten, makeTuple } from '@/libs';
 
 export const useTagList = (ids: string[]) => {

@@ -1,8 +1,8 @@
 import * as t from 'io-ts';
-import { decodeJsonAPIArrayResponse } from '@/entities/JsonAPIArrayResponse';
-import { decodeJsonAPIResponse } from '@/entities/JsonAPIResponse';
-import { Filter, NewFilter } from '@/entities/Filter';
-import { OffsetPagination } from '@/entities/OffsetPagination';
+import { decodeJsonAPIArrayResponse } from '@/api/JsonAPIArrayResponse';
+import { decodeJsonAPIResponse } from '@/api/JsonAPIResponse';
+import { Filter, NewFilter } from '@/api/filters/Filter';
+import { OffsetPagination } from '@/api/OffsetPagination';
 
 const ListMeta = t.type({
   page: OffsetPagination,

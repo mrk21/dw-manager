@@ -60,7 +60,12 @@ export const HistorySearch: FC<HistorySearchProps> = ({ tagId, filterId }) => {
 
   return (
     <div>
-      <ConditionForm filterId={filterId} condition={condition || ''} onChange={setConditionThrottled} />
+      <ConditionForm
+        disabled={loadingFilter || loadingTag}
+        filterId={filterId}
+        condition={condition || ''}
+        onChange={setConditionThrottled}
+      />
       <Pagination disabled={loading} count={totalPage} page={page} onChange={onChangePage} />
       {(() => {
         if (loading) return <Indicator />;

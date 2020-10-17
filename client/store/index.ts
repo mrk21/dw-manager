@@ -1,7 +1,7 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { createWrapper } from "next-redux-wrapper";
 import { RootState, rootReducer } from '@/modules/root';
-import { CreateWrapper } from '@/types/CreateWrappter';
+import { CreateWrapper } from '@/store/CreateWrappter';
 
 export type AppStore = ReturnType<typeof makeStore>;
 export type AppDispatch = AppStore['dispatch'];

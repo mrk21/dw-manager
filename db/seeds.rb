@@ -17,9 +17,9 @@ subscription_history_types = {
   service_y: 'HOO SERVICE Y',
 }
 
-days = 100
+days = 3650
 history_props = days.times.map do |i|
-  date = Time.zone.now.ago(days - i.days).to_date
+  date = Time.zone.now.ago(days.days - i.days).to_date
   {
     id: SecureRandom.uuid,
     date: date,
@@ -33,7 +33,7 @@ History.import history_props
 
 months = days / 30
 history_props = months.times.map do |i|
-  date = Time.zone.now.ago(days - i.months).to_date
+  date = Time.zone.now.ago(days.days - i.months).to_date
   subscription_history_types.map do |_, title|
     {
       id: SecureRandom.uuid,

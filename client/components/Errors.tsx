@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { JsonAPIError } from '@/entities/JsonAPIError';
+import { JsonAPIError } from '@/api/JsonAPIError';
 
 type Props = {
   errors: JsonAPIError[];

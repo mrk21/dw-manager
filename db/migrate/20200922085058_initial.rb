@@ -15,7 +15,7 @@ class Initial < ActiveRecord::Migration[6.0]
     execute "ALTER TABLE histories ADD PRIMARY KEY (id);"
 
     create_table :filters do |t|
-      t.string :name, null: false, index: true
+      t.string :name, null: false, index: { unique: true }
       t.string :condition, null: false
       t.timestamps
       t.index :created_at
@@ -23,7 +23,7 @@ class Initial < ActiveRecord::Migration[6.0]
     end
 
     create_table :tags do |t|
-      t.string :name, null: false, index: true
+      t.string :name, null: false, index: { unique: true }
       t.timestamps
       t.index :created_at
       t.index :updated_at

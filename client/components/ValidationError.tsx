@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { ValidationFailedJsonAPIError } from '@/entities/JsonAPIError';
+import { ValidationFailedJsonAPIError } from '@/api/JsonAPIError';
 
 type Props = {
   errors: ValidationFailedJsonAPIError | undefined;

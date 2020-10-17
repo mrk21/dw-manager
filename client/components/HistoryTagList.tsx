@@ -1,5 +1,5 @@
 import { FC, Fragment } from 'react';
-import { History } from '@/entities/History';
+import { History } from '@/api/histories/History';
 import Chip from '@material-ui/core/Chip';
 import Link from 'next/link';
 import { useTagList } from '@/modules/tag/useTagList';

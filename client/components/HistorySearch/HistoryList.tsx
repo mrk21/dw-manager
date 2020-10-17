@@ -5,7 +5,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
 import { HistoryTagList } from '@/components/HistoryTagList'
-import { History } from '@/entities/History';
+import { History } from '@/api/histories/History';
 
 export type HistoryListProps = {
   histories: History[];

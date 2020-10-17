@@ -1,6 +1,6 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '@/store';
-import { History } from '@/entities/History';
+import { History } from '@/api/histories/History';
 import * as historyAPI from '@/api/histories';
 import { RootState } from '@/modules/root';
 import { compare } from '@/libs';

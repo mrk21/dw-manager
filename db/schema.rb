@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(version: 2020_09_22_085058) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["created_at"], name: "index_filters_on_created_at"
-    t.index ["name"], name: "index_filters_on_name"
+    t.index ["name"], name: "index_filters_on_name", unique: true
     t.index ["updated_at"], name: "index_filters_on_updated_at"
   end
 
@@ -55,7 +55,7 @@ ActiveRecord::Schema.define(version: 2020_09_22_085058) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["created_at"], name: "index_tags_on_created_at"
-    t.index ["name"], name: "index_tags_on_name"
+    t.index ["name"], name: "index_tags_on_name", unique: true
     t.index ["updated_at"], name: "index_tags_on_updated_at"
   end
 

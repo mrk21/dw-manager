@@ -1,7 +1,7 @@
 require 'search_query'
 
 class Filter < ApplicationRecord
-  validates :name, length: { in: 1..255 }
+  validates :name, length: { in: 1..255 }, uniqueness: true
   validates :condition, presence: true
 
   def matched_histories

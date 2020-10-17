@@ -1,6 +1,6 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '@/store';
-import { Tag } from '@/entities/Tag';
+import { Tag } from '@/api/tags/Tag';
 import * as tagAPI from '@/api/tags';
 import { RootState } from '@/modules/root';
 import { batchRequest } from '@/libs/batchRequest';

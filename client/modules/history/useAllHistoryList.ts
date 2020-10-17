@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { fetchHistoryList, historySelector } from '@/modules/history';
-import { JsonAPIError } from '@/entities/JsonAPIError';
-import { OffsetPagination } from '@/entities/OffsetPagination';
+import { JsonAPIError } from '@/api/JsonAPIError';
+import { OffsetPagination } from '@/api/OffsetPagination';
 import { makeTuple } from '@/libs';
 
 export const useAllHistoryList = ({ condition, page = 1, per = 20 }: {

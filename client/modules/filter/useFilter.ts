@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { filterSelector, fetchFilter } from '@/modules/filter';
-import { JsonAPIError } from '@/entities/JsonAPIError';
+import { JsonAPIError } from '@/api/JsonAPIError';
 import { makeTuple } from '@/libs';
 
 export const useFilter = (id: string | undefined) => {

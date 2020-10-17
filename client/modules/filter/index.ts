@@ -1,6 +1,6 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '@/store';
-import { Filter, NewFilter } from '@/entities/Filter';
+import { Filter, NewFilter } from '@/api/filters/Filter';
 import * as filterAPI from '@/api/filters';
 import { RootState } from '@/modules/root';
 

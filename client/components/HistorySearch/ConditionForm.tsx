@@ -7,15 +7,21 @@ import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 
-import { FilterCreationForm } from './FilterCreationForm';
+import { FilterForm } from './FilterForm';
 
 export type ConditionFormProps = {
+  disabled?: boolean;
   filterId?: string;
   condition: string;
   onChange: (value: string) => any;
 };
 
-export const ConditionForm: FC<ConditionFormProps> = ({ filterId, condition, onChange }) => {
+export const ConditionForm: FC<ConditionFormProps> = ({
+  disabled = false,
+  filterId,
+  condition,
+  onChange,
+}) => {
   const onChange_ = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value), []);
   const onChangeForCreation_ = useCallback((value: string) => onChange(value), []);
   const onOpen = useCallback((_: any) => setIsOpend(true), []);
@@ -33,6 +39,7 @@ export const ConditionForm: FC<ConditionFormProps> = ({ filterId, condition, onC
         <InputLabel>Search</InputLabel>
         <Input
           {...valueProps}
+          disabled={disabled}
           fullWidth={true}
           onFocus={onFocus}
           onBlur={onBlur}
@@ -45,12 +52,19 @@ export const ConditionForm: FC<ConditionFormProps> = ({ filterId, condition, onC
           }
           endAdornment={
             <InputAdornment position="end">
-              <Button size="small" startIcon={<SaveIcon />} onClick={onOpen}>Save Filter</Button>
+              <Button
+                disabled={disabled}
+                size="small"
+                startIcon={<SaveIcon />}
+                onClick={onOpen}
+              >
+                Save Filter
+              </Button>
             </InputAdornment>
           }
         />
       </FormControl>
-      <FilterCreationForm
+      <FilterForm
         filterId={filterId}
         condition={condition}
         isOpen={isOpend}

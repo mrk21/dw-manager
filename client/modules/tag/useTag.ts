@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { selectTagById, fetchTag } from '@/modules/tag';
-import { JsonAPIError } from '@/entities/JsonAPIError';
+import { JsonAPIError } from '@/api/JsonAPIError';
 import { makeTuple } from '@/libs';
 
 export const useTag = (id: string | undefined) => {
@@ -15,7 +15,7 @@ export const useTag = (id: string | undefined) => {
 
     const fetchData = async () => {
       setLoading(true);
-      const errors = await dispatch(fetchTag(id || ''))
+      const errors = await dispatch(fetchTag(id || ''));
       if (cleanuped) return;
       setErrors(errors);
       setLoading(false);
