@@ -6,4 +6,9 @@ Rails.application.routes.draw do
       get 'batched/:ids', action: :batch_show
     end
   end
+  resource :session, only: [:show, :destroy] do
+    scope module: :sessions do
+      resource :password, only: [:create]
+    end
+  end
 end

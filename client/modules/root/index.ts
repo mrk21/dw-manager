@@ -5,6 +5,7 @@ import { historyReducer } from '@/modules/history';
 import { tagReducer } from '@/modules/tag';
 import { filterReducer } from '@/modules/filter';
 import { flashMessageReducer } from '@/modules/flash_message';
+import { sessionReducer } from '@/modules/session';
 
 export type RootState = ReturnType<typeof combinedReducer>;
 
@@ -13,6 +14,7 @@ const combinedReducer = combineReducers({
   tag: tagReducer,
   filter: filterReducer,
   flashMessage: flashMessageReducer,
+  session: sessionReducer,
 });
 
 export const rootReducer: typeof combinedReducer = (state, action) => {

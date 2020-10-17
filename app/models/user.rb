@@ -1,0 +1,10 @@
+class User < ApplicationRecord
+  has_one :password_auth, dependent: :destroy,
+    class_name: :'User::Auth::Password', foreign_key: :user_id
+
+  accepts_nested_attributes_for :password_auth, allow_destroy: true
+
+  validates :email, presence: :true
+  validates :screen_name, presence: :true
+  validates :name, presence: :true
+end

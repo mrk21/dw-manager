@@ -1,4 +1,6 @@
 class FiltersController < ApplicationController
+  before_action :authenticate_user!
+
   def index
     filters = Filter.page(page_params[:page]).per(page_params[:per])
     serializer = FilterSerializer.new(filters, {

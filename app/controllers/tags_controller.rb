@@ -1,4 +1,6 @@
 class TagsController < ApplicationController
+  before_action :authenticate_user!
+
   def index
     tags = Tag.all
     tags = tags.page(page_params[:page]).per(page_params[:per])

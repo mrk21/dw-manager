@@ -23,6 +23,12 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  class SessionExpiredError < StandardError
+  end
+
+  class AuthenticationError < StandardError
+  end
+
   module BatchedRequest
     class Error < StandardError; end
 
@@ -44,6 +50,10 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+
+  def authenticate_user!
+    raise SessionExpiredError if session[:user_id].nil?
+  end
 
   def page_params
     {
@@ -99,7 +109,23 @@ class ApplicationController < ActionController::Base
   def error_response(e)
     raise e if Rails.env.development? && params[:_debug] == '1'
     case e
-    when ActiveRecord::RecordNotFound then
+    when SessionExpiredError
+      Rails.logger.warn(e.inspect)
+      {
+        status: 401,
+        json: {
+          errors: [ Error::SessionExpiredSerializer.new.serializable_hash ]
+        }
+      }
+    when AuthenticationError
+      Rails.logger.warn(e.inspect)
+      {
+        status: 401,
+        json: {
+          errors: [ Error::AuthenticationErrorSerializer.new.serializable_hash ]
+        }
+      }
+    when ActiveRecord::RecordNotFound
       Rails.logger.warn(e.inspect)
       {
         status: 404,
@@ -107,7 +133,7 @@ class ApplicationController < ActionController::Base
           errors: [ Error::NotFoundSerializer.new.serializable_hash ]
         }
       }
-    when ValidationFailedError then
+    when ValidationFailedError
       Rails.logger.warn(e.inspect)
       {
         status: 400,
@@ -117,7 +143,7 @@ class ApplicationController < ActionController::Base
           ]
         }
       }
-    when BatchedRequest::TooManyRequestError then
+    when BatchedRequest::TooManyRequestError
       Rails.logger.warn(e.inspect)
       {
         status: 400,

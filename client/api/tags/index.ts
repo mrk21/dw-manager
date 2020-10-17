@@ -9,13 +9,19 @@ const ListMeta = t.type({
 });
 
 export async function getTagList({ page = 1, per = 20 }: { page?: number, per?: number }) {
-  const response = await fetch(`http://localhost:4000/tags?page=${page}&per=${per}`);
+  const response = await fetch(`http://localhost:4000/tags?page=${page}&per=${per}`, {
+    mode: 'cors',
+    credentials: 'include',
+  });
   const json = await response.json();
   return decodeJsonAPIArrayResponse(json, { data: Tag, meta: ListMeta });
 };
 
 export async function getTagBatched(ids: string[]) {
-  const response = await fetch(`http://localhost:4000/tags/batched/${ids.join(',')}`);
+  const response = await fetch(`http://localhost:4000/tags/batched/${ids.join(',')}`, {
+    mode: 'cors',
+    credentials: 'include',
+  });
   const json = await response.json();
   return decodeJsonAPIBatchedResponse(json, { data: Tag });
 };

@@ -20,7 +20,10 @@ export async function getHistoryList({
   page?: number;
   per?: number;
 }) {
-  const response = await fetch(`http://localhost:4000/histories?condition=${condition}&tag_id=${tagId}&filter_id=${filterId}&page=${page}&per=${per}`);
+  const response = await fetch(`http://localhost:4000/histories?condition=${condition}&tag_id=${tagId}&filter_id=${filterId}&page=${page}&per=${per}`, {
+    mode: 'cors',
+    credentials: 'include',
+  });
   const json = await response.json();
   return decodeJsonAPIArrayResponse(json, { data: History, meta: ListMeta });
 };

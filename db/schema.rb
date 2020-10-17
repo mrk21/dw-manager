@@ -59,6 +59,31 @@ ActiveRecord::Schema.define(version: 2020_09_22_085058) do
     t.index ["updated_at"], name: "index_tags_on_updated_at"
   end
 
+  create_table "user_auth_passwords", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "password_digest", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_at"], name: "index_user_auth_passwords_on_created_at"
+    t.index ["password_digest"], name: "index_user_auth_passwords_on_password_digest"
+    t.index ["updated_at"], name: "index_user_auth_passwords_on_updated_at"
+    t.index ["user_id"], name: "index_user_auth_passwords_on_user_id", unique: true
+  end
+
+  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "screen_name", null: false
+    t.string "name", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_at"], name: "index_users_on_created_at"
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["name"], name: "index_users_on_name"
+    t.index ["screen_name"], name: "index_users_on_screen_name", unique: true
+    t.index ["updated_at"], name: "index_users_on_updated_at"
+  end
+
   add_foreign_key "history_tags", "histories", on_delete: :cascade
   add_foreign_key "history_tags", "tags", on_delete: :cascade
+  add_foreign_key "user_auth_passwords", "users", on_update: :cascade, on_delete: :cascade
 end

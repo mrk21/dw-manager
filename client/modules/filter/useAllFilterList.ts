@@ -4,6 +4,7 @@ import { fetchFilterList, filterSelector } from '@/modules/filter';
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { OffsetPagination } from '@/api/OffsetPagination';
 import { makeTuple } from '@/libs';
+import { sessionSelectors } from '../session';
 
 export const useAllFilterList = ({ page = 1, per = 100 }: {
   page?: number;
@@ -14,6 +15,7 @@ export const useAllFilterList = ({ page = 1, per = 100 }: {
   const [errors, setErrors] = useState<JsonAPIError[]>();
   const [pageInfo, setPageInfo] = useState<OffsetPagination>();
   const filters = useAppSelector(filterSelector.selectAll);
+  const me = useAppSelector(sessionSelectors.me);
 
   useEffect(() => {
     let cleanuped = false;
@@ -26,13 +28,13 @@ export const useAllFilterList = ({ page = 1, per = 100 }: {
       setPageInfo(meta ? meta.page : undefined);
       setLoading(false);
     };
-    fetchData();
+    if (me) fetchData();
 
     return () => {
       cleanuped = true;
       setLoading(false);
     };
-  }, [page, per]);
+  }, [me, page, per]);
 
   return makeTuple(loading, errors, filters, pageInfo);
 };

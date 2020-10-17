@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { selectTagById, fetchTag } from '@/modules/tag';
+import { sessionOperations, sessionSelectors } from '@/modules/session';
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { makeTuple } from '@/libs';
-import { sessionSelectors } from '../session';
 
-export const useTag = (id: string | undefined) => {
+export const useMe = () => {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<JsonAPIError[]>();
-  const tag = useAppSelector((state) => id ? selectTagById(state, id) : undefined);
   const me = useAppSelector(sessionSelectors.me);
 
   useEffect(() => {
@@ -17,18 +15,19 @@ export const useTag = (id: string | undefined) => {
 
     const fetchData = async () => {
       setLoading(true);
-      const errors = await dispatch(fetchTag(id || ''));
+      const result = await dispatch(sessionOperations.getMe());
       if (cleanuped) return;
-      setErrors(errors);
+      setErrors(result.errors);
       setLoading(false);
     };
-    if (me && id && !tag) fetchData();
+    if (!me) fetchData();
 
     return () => {
       cleanuped = true;
+      setErrors(undefined);
       setLoading(false);
     };
-  }, [me, id, tag]);
+  }, [me]);
 
-  return makeTuple(loading, errors, tag);
+  return makeTuple(loading, errors, me);
 };

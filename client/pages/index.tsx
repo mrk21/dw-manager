@@ -3,9 +3,8 @@ import Head from 'next/head'
 import { HistorySearch } from '@/components/HistorySearch/HistorySearch';
 import { TagList } from '@/components/TagList';
 import { FilterList } from '@/components/FilterList';
-import { FlashMessage } from '@/components/FlashMessage';
 import Grid from '@material-ui/core/Grid';
-import Link from 'next/link';
+import { LoggedInLayout } from '@/components/layout/LoggedInLayout';
 
 const IndexPage: NextPage = () => {
   const query = new URLSearchParams(typeof location === 'undefined' ? '' : location.search);
@@ -13,12 +12,11 @@ const IndexPage: NextPage = () => {
   const filterId = query.get('filter_id');
 
   return (
-    <div>
+    <LoggedInLayout>
       <Head>
         <title>dw-manager</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <h1><Link href="/">dw-manager</Link></h1>
       <Grid container>
         <Grid item xs={2}>
           <TagList />
@@ -31,8 +29,7 @@ const IndexPage: NextPage = () => {
           />
         </Grid>
       </Grid>
-      <FlashMessage />
-    </div>
+    </LoggedInLayout>
   );
 };
 

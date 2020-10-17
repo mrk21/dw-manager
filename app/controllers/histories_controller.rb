@@ -1,4 +1,6 @@
 class HistoriesController < ApplicationController
+  before_action :authenticate_user!
+
   def index
     histories = if histories_params[:condition].present?
       filter = Filter.new(condition: histories_params[:condition].to_s.strip)
