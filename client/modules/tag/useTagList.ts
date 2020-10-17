@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { fetchTag, selectTagById } from '@/modules/tag';
 import { JsonAPIError } from '@/entities/JsonAPIError';
 import { compact, flatten, makeTuple } from '@/libs';
@@ -21,14 +21,16 @@ export const useTagList = (ids: string[]) => {
         )
       ));
       if (cleanuped) return;
-      if (e.length > 0) setErrors(e);
-      setErrors(undefined);
+      setErrors(e.length > 0 ? e : undefined);
       setLoading(false);
     };
     if (tags.length !== ids.length) fetchData();
 
-    return () => { cleanuped = true; };
-  }, []);
+    return () => {
+      cleanuped = true;
+      setLoading(false);
+    };
+  }, [ids, tags]);
 
   return makeTuple(loading, errors, tags);
 };

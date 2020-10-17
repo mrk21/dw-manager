@@ -36,6 +36,8 @@ class FiltersController < ApplicationController
   def filter_params
     body = json_params.permit(
       data: [
+        :type,
+        :id,
         attributes: [
           :name,
           :condition,

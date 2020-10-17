@@ -1,5 +1,5 @@
 import { FC, useState, useEffect, useCallback, ChangeEvent } from 'react';
-import { useAppDispatch, useAppSelector } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { createFilter, updateFilter } from '@/modules/filter';
 import { ValidationFailedJsonAPIError } from '@/entities/JsonAPIError';
 import { ValidationError } from '@/components/ValidationError';
@@ -31,33 +31,37 @@ export const FilterCreationForm: FC<Props> = ({ filterId, condition, isOpen, onC
 
   const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => setName(e.target.value), []);
   const onChangeCondition_ = useCallback((e: ChangeEvent<HTMLInputElement>) => onChangeCondition(e.target.value), []);
+
   const onCreate = useCallback(async (_: any) => {
-    if (filterId && filter) {
-      const filter_ = cloneDeep(filter);
-      filter_.attributes.name = name;
-      filter_.attributes.condition = condition;
-      const result = await dispatch(updateFilter(filter_));
-      if (result.errors) {
-        const e = result.errors.filter((v): v is ValidationFailedJsonAPIError => v.code == 'validation_failed')[0];
-        dispatch(flashMessageErrorSet('Filter updating failed'));
-        setErrors(e);
-      }
-      else {
-        dispatch(flashMessageSuccessSet('Filter updating succeed'));
-        onClose(_);
-      }
+    const result = await dispatch(createFilter({ name, condition }));
+
+    if (result.errors) {
+      const e = result.errors.filter((v): v is ValidationFailedJsonAPIError => v.code == 'validation_failed')[0];
+      dispatch(flashMessageErrorSet('Filter creation failed'));
+      setErrors(e);
     }
     else {
-      const result = await dispatch(createFilter({ name, condition }));
-      if (result.errors) {
-        const e = result.errors.filter((v): v is ValidationFailedJsonAPIError => v.code == 'validation_failed')[0];
-        dispatch(flashMessageErrorSet('Filter creation failed'));
-        setErrors(e);
-      }
-      else {
-        dispatch(flashMessageSuccessSet('Filter creation succeed'));
-        onClose(_);
-      }
+      dispatch(flashMessageSuccessSet('Filter creation succeed'));
+      onClose(_);
+    }
+  }, [name, condition]);
+
+  const onUpdate = useCallback(async (_: any) => {
+    if (!filter) return;
+    const filter_ = cloneDeep(filter);
+    filter_.attributes.name = name;
+    filter_.attributes.condition = condition;
+
+    const result = await dispatch(updateFilter(filter_));
+
+    if (result.errors) {
+      const e = result.errors.filter((v): v is ValidationFailedJsonAPIError => v.code == 'validation_failed')[0];
+      dispatch(flashMessageErrorSet('Filter updating failed'));
+      setErrors(e);
+    }
+    else {
+      dispatch(flashMessageSuccessSet('Filter updating succeed'));
+      onClose(_);
     }
   }, [name, condition]);
 
@@ -76,7 +80,7 @@ export const FilterCreationForm: FC<Props> = ({ filterId, condition, isOpen, onC
 
   return (
     <Dialog open={isOpen} onClose={onClose} aria-labelledby="form-dialog-title">
-      <DialogTitle>New Filter</DialogTitle>
+      <DialogTitle>{filterId ? 'Edit Filter' : 'New Filter'}</DialogTitle>
       <DialogContent style={{width: '500px'}}>
         <TextField
           autoFocus
@@ -101,7 +105,7 @@ export const FilterCreationForm: FC<Props> = ({ filterId, condition, isOpen, onC
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="primary">Cancel</Button>
-        <Button onClick={onCreate} color="primary">Create</Button>
+        <Button onClick={filterId ? onUpdate : onCreate} color="primary">{filterId ? 'Update' : 'Create'}</Button>
       </DialogActions>
     </Dialog>
   );

@@ -2,7 +2,9 @@ import { FC, Fragment } from 'react';
 import { History } from '@/entities/History';
 import Chip from '@material-ui/core/Chip';
 import Link from 'next/link';
-import { useTagList } from './useTagList';
+import { useTagList } from '@/modules/tag/useTagList';
+import { Indicator } from './Indicator';
+import { Errors } from './Errors';
 
 type Props = {
   history: History
@@ -11,20 +13,8 @@ type Props = {
 export const HistoryTagList: FC<Props> = ({ history }) => {
   const [ loading, errors, tags ] = useTagList(history.relationships.tags.data.map(t => t.id));
 
-  if (loading) {
-    return (
-      <p>loading...</p>
-    );
-  }
-  if (errors) {
-    return (
-      <div>
-        {errors.map((e, i) => (
-          <p key={i}>{e.title}</p>
-        ))}
-      </div>
-    );
-  }
+  if (loading) return <Indicator />;
+  if (errors) return <Errors errors={errors} />;
   return (
     <div>
       {tags.map((tag) => (

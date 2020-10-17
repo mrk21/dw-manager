@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { filterSelector, fetchFilter } from '@/modules/filter';
 import { JsonAPIError } from '@/entities/JsonAPIError';
 import { makeTuple } from '@/libs';
@@ -16,13 +16,16 @@ export const useFilter = (id: string | undefined) => {
     const fetchData = async () => {
       setLoading(true);
       const { errors } = await dispatch(fetchFilter(id || ''))
-      setLoading(false);
       if (cleanuped) return;
       setErrors(errors);
+      setLoading(false);
     };
     if (id && !filter) fetchData();
 
-    return () => { cleanuped = true; };
+    return () => {
+      cleanuped = true;
+      setLoading(false);
+    };
   }, [id, filter]);
 
   return makeTuple(loading, errors, filter);

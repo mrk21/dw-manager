@@ -1,38 +1,39 @@
 import { useState, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { fetchHistoryList, historySelector } from '@/modules/history';
 import { JsonAPIError } from '@/entities/JsonAPIError';
 import { OffsetPagination } from '@/entities/OffsetPagination';
 import { makeTuple } from '@/libs';
 
-export const useHistoryList = ({ condition, page }: {
+export const useAllHistoryList = ({ condition, page = 1, per = 20 }: {
   condition?: string;
-  page: number;
-}) => {
+  page?: number;
+  per?: number;
+} = {}) => {
   const dispatch = useAppDispatch();
-
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<JsonAPIError[]>();
-  const [pageInfo, setPageInfo] = useState<OffsetPagination>();
-
+  const [meta, setMeta] = useState<{ page: OffsetPagination; }>();
   const histories = useAppSelector(historySelector.selectAll);
 
-  // fetch histories
   useEffect(() => {
     let cleanuped = false;
 
     const fetchData = async () => {
       setLoading(true);
-      const { errors, meta } = await dispatch(fetchHistoryList({ condition, page }));
-      setLoading(false);
+      const { errors, meta } = await dispatch(fetchHistoryList({ condition, page, per }));
       if (cleanuped) return;
       setErrors(errors);
-      setPageInfo(meta ? meta.page : undefined);
+      setMeta(meta);
+      setLoading(false);
     };
     if (typeof condition !== 'undefined') fetchData();
 
-    return () => { cleanuped = true; };
-  }, [condition, page]);
+    return () => {
+      cleanuped = true;
+      setLoading(false);
+    };
+  }, [condition, page, per]);
 
-  return makeTuple(loading, errors, histories, pageInfo);
+  return makeTuple(loading, errors, histories, meta);
 };

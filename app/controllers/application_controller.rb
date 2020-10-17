@@ -100,7 +100,7 @@ class ApplicationController < ActionController::Base
     raise e if Rails.env.development? && params[:_debug] == '1'
     case e
     when ActiveRecord::RecordNotFound then
-      Rails.logger.warn(e.full_message)
+      Rails.logger.warn(e.inspect)
       {
         status: 404,
         json: {
@@ -108,7 +108,7 @@ class ApplicationController < ActionController::Base
         }
       }
     when ValidationFailedError then
-      Rails.logger.warn(e.full_message)
+      Rails.logger.warn(e.inspect)
       {
         status: 400,
         json: {
@@ -118,7 +118,7 @@ class ApplicationController < ActionController::Base
         }
       }
     when BatchedRequest::TooManyRequestError then
-      Rails.logger.warn(e.full_message)
+      Rails.logger.warn(e.inspect)
       {
         status: 400,
         json: {
