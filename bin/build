@@ -1,0 +1,5 @@
+#!/bin/bash -e
+RAILS_ROOT=$(cd $(dirname $0)/..; pwd)
+cd ${RAILS_ROOT}
+set -x
+exec prehook "racc lib/search_query/parser.y.rb" "$@"

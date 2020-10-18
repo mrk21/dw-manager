@@ -25,6 +25,14 @@ module SearchQuery::AST
       @context = context
     end
 
+    def to_s
+      JSON.pretty_generate(to_h)
+    end
+
+    def to_h
+      raise NotImplementedError
+    end
+
     def to_arel
       raise NotImplementedError
     end
@@ -44,6 +52,10 @@ module SearchQuery::AST
       @node = node
       @children = [@node]
       init
+    end
+
+    def to_h
+      { root: @node.to_h }
     end
 
     def to_arel
@@ -70,18 +82,30 @@ module SearchQuery::AST
   end
 
   class AND < BinaryOP
+    def to_h
+      { and: [ @lop.to_h, @rop.to_h ] }
+    end
+
     def to_arel
       @lop.to_arel.and @rop.to_arel
     end
   end
 
   class OR < BinaryOP
+    def to_h
+      { or: [ @lop.to_h, @rop.to_h ] }
+    end
+
     def to_arel
       @lop.to_arel.or @rop.to_arel
     end
   end
 
   class NOT < UnaryOP
+    def to_h
+      { not: @op.to_h }
+    end
+
     def to_arel
       @op.to_arel.not
     end
@@ -94,6 +118,10 @@ module SearchQuery::AST
       @children = [@node]
     end
 
+    def to_h
+      { group: @node.to_h }
+    end
+
     def to_arel
       Arel::Nodes::Grouping.new(@node.to_arel)
     end
@@ -104,6 +132,10 @@ module SearchQuery::AST
       super(context)
       @value = value
       @children = []
+    end
+
+    def to_h
+      { word: @value }
     end
 
     def to_arel
@@ -124,6 +156,16 @@ module SearchQuery::AST
       store[@attr] ||= { values: [] }
       store[@attr][:values].push(@value)
       @condition = context.attrs[@attr][context, store, @value]
+    end
+
+    def to_h
+      {
+        attr: {
+          name: @attr,
+          value: @value,
+          class_name: @condition.class.name
+        }
+      }
     end
 
     def to_arel

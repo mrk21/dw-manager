@@ -63,7 +63,10 @@ def parse(str)
     when scanner.scan(/'[^']+'/)
       @q << [:QUATED_WORD, scanner.matched[1..-2]]
 
-    when attrs.present? && scanner.scan(%r`(?<=\s|　|^)?(#{attrs.join('|')}):[^\s　]+(?=\s|　|$)?`)
+    when scanner.scan(/[\(|\)]/)
+      @q << [scanner.matched, scanner.matched]
+
+    when attrs.present? && scanner.scan(%r`(?<=\s|　|^)?(#{attrs.join('|')}):[^\s　()]+(?=\s|　|$)?`)
       attr, value = scanner.matched.split(':', 2)
       @q << [:ATTR_NAME, attr]
       @q << [':', ':']
@@ -77,9 +80,6 @@ def parse(str)
       matched = scanner.matched
       @q << [matched.to_sym, matched]
       while scanner.scan(/(?<=\s|　|^)(AND|OR)(?=\s|　|$)/); end # ignore
-
-    when scanner.scan(/[\(|\)]/)
-      @q << [scanner.matched, scanner.matched]
 
     when scanner.scan(/[^\s　"()-]+/)
       @q << [:WORD, scanner.matched]
