@@ -55,4 +55,9 @@ module UserAuthenticatable
   def user_auth_required!
     user_auth.required!
   end
+
+  # for Pundit
+  def pundit_user
+    user_auth.current
+  end
 end

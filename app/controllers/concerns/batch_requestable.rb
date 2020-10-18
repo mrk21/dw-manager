@@ -50,6 +50,7 @@ module BatchRequestable
       handleable_errors: [
         ActiveRecord::RecordNotFound,
         Error::ValidationFailed,
+        Pundit::NotAuthorizedError,
       ]
     )
   end

@@ -28,6 +28,14 @@ module ErrorResponsible
             errors: [ Error::AuthenticationFailedSerializer.new.serializable_hash ]
           }
         )
+      when Pundit::NotAuthorizedError
+        Rails.logger.warn(e.inspect)
+        Response.new(
+          status: 403,
+          json: {
+            errors: [ Error::NotAuthorizedSerializer.new.serializable_hash ]
+          }
+        )
       when ActiveRecord::RecordNotFound
         Rails.logger.warn(e.inspect)
         Response.new(

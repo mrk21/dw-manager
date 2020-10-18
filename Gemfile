@@ -53,3 +53,6 @@ gem 'kaminari'
 
 # Parser generator
 gem 'racc'
+
+# Authorization
+gem 'pundit'

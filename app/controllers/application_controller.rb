@@ -1,10 +1,10 @@
 class ApplicationController < ActionController::Base
-  include ErrorResponsible
+  include Pundit
   include UserAuthenticatable
+  include ErrorResponsible
   include BatchRequestable
 
   skip_forgery_protection
-
   rescue_from StandardError, with: :render_error_response
 
   protected

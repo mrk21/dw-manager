@@ -1,17 +1,18 @@
 require 'search_query'
 
 class Filter < ApplicationRecord
-  validates :name, length: { in: 1..255 }, uniqueness: true
+  belongs_to :user
+  validates :name, length: { in: 1..255 }, uniqueness: { scope: :user }
   validates :condition, presence: true
 
   def matched_histories
-    histories = History.all
+    histories = History.where(user: user)
     histories = histories.where(parsed_condition.to_arel) if condition.present?
     histories
   end
 
   def parsed_condition
-    parser = SearchQuery::Parser.new(ConditionQueryContext.new)
+    parser = SearchQuery::Parser.new(ConditionQueryContext.new(self))
     parser.parse(condition)
   end
 
@@ -31,6 +32,10 @@ class Filter < ApplicationRecord
   end
 
   class ConditionQueryContext < SearchQuery::Context
+    def initialize(filter)
+      @filter = filter
+    end
+
     def table
       Arel::Table.new(:histories)
     end
@@ -48,7 +53,7 @@ class Filter < ApplicationRecord
     def on_to_arel(store)
       if store[:tag]
         tag_names = store[:tag][:values]
-        tags = Tag.where(name: tag_names).select(:id, :name)
+        tags = Tag.where(user: @filter.user, name: tag_names).select(:id, :name)
         tags = Hash[*tags.map { |t| [t.name, t.id] }.flatten(1)]
         store[:tag][:ids] = tags
       end

@@ -20,6 +20,9 @@ class Initial < ActiveRecord::Migration[6.0]
     end
 
     create_table :histories, id: false do |t|
+      t.references :user, null: false,
+        index: true,
+        foreign_key: { on_update: :cascade, on_delete: :cascade }
       t.string :id, null: false, primary: true
       t.date :date, null: false, index: true
       t.string :title, null: false, index: true
@@ -34,16 +37,24 @@ class Initial < ActiveRecord::Migration[6.0]
     execute "ALTER TABLE histories ADD PRIMARY KEY (id);"
 
     create_table :filters do |t|
-      t.string :name, null: false, index: { unique: true }
+      t.references :user, null: false,
+        index: true,
+        foreign_key: { on_update: :cascade, on_delete: :cascade }
+      t.string :name, null: false
       t.string :condition, null: false
       t.timestamps null: false
+      t.index [:user_id, :name], unique: true
       t.index :created_at
       t.index :updated_at
     end
 
     create_table :tags do |t|
-      t.string :name, null: false, index: { unique: true }
+      t.references :user, null: false,
+        index: true,
+        foreign_key: { on_update: :cascade, on_delete: :cascade }
+      t.string :name, null: false
       t.timestamps null: false
+      t.index [:user_id, :name], unique: true
       t.index :created_at
       t.index :updated_at
     end

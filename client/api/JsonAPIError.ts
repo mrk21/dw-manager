@@ -5,6 +5,7 @@ export const GenericJsonAPIError = t.type({
     t.literal('internal_server_error'),
     t.literal('authentication_failed'),
     t.literal('session_expired'),
+    t.literal('not_authorized'),
     t.literal('not_found'),
     t.literal('too_many_request'),
   ]),
