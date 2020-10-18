@@ -20,6 +20,7 @@ require "action_cable/engine"
 Bundler.require(*Rails.groups)
 
 require_relative '../lib/simple_serializer'
+require_relative '../lib/error'
 
 module DwManager
   class Application < Rails::Application

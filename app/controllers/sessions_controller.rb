@@ -1,13 +1,12 @@
 class SessionsController < ApplicationController
+  before_action :user_auth_required!, only: [:show]
+
   def show
-    raise SessionExpiredError if session[:user_id].nil?
-    user = User.find_by(id: session[:user_id])
-    raise SessionExpiredError if user.nil?
-    render json: UserSerializer.new(user).serializable_hash
+    render json: UserSerializer.new(user_auth.current).serializable_hash
   end
 
   def destroy
-    reset_session
-    render status: 204, plain: ''
+    user_auth.clear!
+    render json: { data: true }
   end
 end

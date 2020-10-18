@@ -1,5 +1,5 @@
 class HistoriesController < ApplicationController
-  before_action :authenticate_user!
+  before_action :user_auth_required!
 
   def index
     histories = if histories_params[:condition].present?

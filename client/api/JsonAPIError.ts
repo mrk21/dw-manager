@@ -3,7 +3,7 @@ import * as t from 'io-ts';
 export const GenericJsonAPIError = t.type({
   code: t.union([
     t.literal('internal_server_error'),
-    t.literal('authentication_error'),
+    t.literal('authentication_failed'),
     t.literal('session_expired'),
     t.literal('not_found'),
     t.literal('too_many_request'),

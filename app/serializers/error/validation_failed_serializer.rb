@@ -1,5 +1,5 @@
 class Error::ValidationFailedSerializer < SimpleSerializer
-  # @param e [ValidationFailedError]
+  # @param e [Error::ValidationFailed]
   def initialize(e)
     super({
       code: "validation_failed",

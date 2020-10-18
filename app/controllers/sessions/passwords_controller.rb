@@ -1,15 +1,15 @@
 class Sessions::PasswordsController < ApplicationController
   def create
-    params_ = auth_params
-    user = User::Auth::Password.authenticate(email: params_['email'], password: params_['password'])
-    raise AuthenticationError if user.nil?
-    session[:user_id] = user.id
-    render status: 201, json: UserSerializer.new(user).serializable_hash
+    user_auth.authenticate! User::Auth::Password.authenticate(**auth_params)
+    render status: 201, json: UserSerializer.new(user_auth.current).serializable_hash
   end
 
   private
 
   def auth_params
-    params.require(:auth).permit(:email, :password)
+    params.require(:auth)
+      .permit(:email, :password)
+      .to_h
+      .deep_symbolize_keys
   end
 end

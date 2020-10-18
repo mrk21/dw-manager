@@ -1,5 +1,5 @@
 class FiltersController < ApplicationController
-  before_action :authenticate_user!
+  before_action :user_auth_required!
 
   def index
     filters = Filter.page(page_params[:page]).per(page_params[:per])
@@ -18,7 +18,7 @@ class FiltersController < ApplicationController
 
   def create
     filter = Filter.new(filter_params)
-    ValidationFailedError.capture(type: 'filter', path: '/data') do
+    Error::ValidationFailed.capture(type: 'filter', path: '/data') do
       filter.save!
     end
     render status: 201, json: FilterSerializer.new(filter)
@@ -27,7 +27,7 @@ class FiltersController < ApplicationController
   def update
     filter = Filter.find(params[:id])
     filter.assign_attributes(filter_params)
-    ValidationFailedError.capture(type: 'filter', path: '/data') do
+    Error::ValidationFailed.capture(type: 'filter', path: '/data') do
       filter.save!
     end
     render json: FilterSerializer.new(filter)
