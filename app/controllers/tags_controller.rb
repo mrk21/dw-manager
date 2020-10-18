@@ -4,7 +4,7 @@ class TagsController < ApplicationController
   def index
     tags = policy_scope(Tag)
     tags = tags.page(page_params[:page]).per(page_params[:per])
-    serializer = FilterSerializer.new(tags, {
+    serializer = TagSerializer.new(tags, {
       meta: {
         page: OffsetPaginationSerializer.new(tags)
       }

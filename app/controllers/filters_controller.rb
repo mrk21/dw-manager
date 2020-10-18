@@ -22,7 +22,7 @@ class FiltersController < ApplicationController
     filter = Filter.new(user: user_auth.current)
     authorize filter
     filter.assign_attributes(filter_params)
-    Error::ValidationFailed.capture(type: 'filter', path: '/data') do
+    ::Error::ValidationFailed.capture(type: 'filter', path: '/data') do
       filter.save!
     end
     render status: 201, json: FilterSerializer.new(filter)
@@ -32,7 +32,7 @@ class FiltersController < ApplicationController
     filter = Filter.find(params[:id])
     authorize filter
     filter.assign_attributes(filter_params)
-    Error::ValidationFailed.capture(type: 'filter', path: '/data') do
+    ::Error::ValidationFailed.capture(type: 'filter', path: '/data') do
       filter.save!
     end
     render json: FilterSerializer.new(filter)
