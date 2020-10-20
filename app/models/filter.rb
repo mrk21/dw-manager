@@ -2,7 +2,7 @@ require 'search_query'
 
 class Filter < ApplicationRecord
   belongs_to :user
-  validates :name, length: { in: 1..255 }, uniqueness: { scope: :user }
+  validates :name, length: { in: 1..255 }, uniqueness: { case_sensitive: false, scope: :user }
   validates :condition, presence: true
 
   def matched_histories

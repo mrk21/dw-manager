@@ -68,6 +68,13 @@ GEM
     crass (1.0.6)
     diff-lcs (1.4.4)
     erubi (1.9.0)
+    factory_bot (6.1.0)
+      activesupport (>= 5.0.0)
+    factory_bot_rails (6.1.0)
+      factory_bot (~> 6.1.0)
+      railties (>= 5.0.0)
+    faker (2.14.0)
+      i18n (>= 1.6, < 2)
     ffi (1.13.1)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
@@ -165,6 +172,7 @@ GEM
       rspec-expectations (~> 3.9)
       rspec-mocks (~> 3.9)
       rspec-support (~> 3.9)
+    rspec-request_describer (0.3.2)
     rspec-support (3.9.3)
     sprockets (4.0.2)
       concurrent-ruby (~> 1.0)
@@ -195,6 +203,8 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   bootsnap (>= 1.4.2)
   byebug
+  factory_bot_rails
+  faker
   jbuilder (~> 2.7)
   jsonapi-serializer (~> 2.1.0)
   kaminari
@@ -206,6 +216,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 6.0.3, >= 6.0.3.3)
   rspec-rails
+  rspec-request_describer
   tzinfo-data
   web-console (>= 3.3.0)
 

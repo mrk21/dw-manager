@@ -15,9 +15,8 @@ module UserAuthenticatable
       @current ||= User.find_by(id: @session[:user_id])
     end
 
-    def current=(user)
-      @current = user
-      @session[:user_id] = user&.id
+    def logged_in?
+      @session[:user_id].present? && User.where(id: @session[:user_id]).exists?
     end
 
     def clear!
@@ -26,13 +25,14 @@ module UserAuthenticatable
     end
 
     def required!
-      raise SessionExpired if current.nil?
+      raise SessionExpired unless logged_in?
     end
 
     def authenticate!(user)
       raise AuthenticationFailed if user.nil?
       clear!
-      self.current = user
+      @current = user
+      @session[:user_id] = user.id
     end
   end
 

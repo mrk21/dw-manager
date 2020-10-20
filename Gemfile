@@ -28,6 +28,9 @@ group :development, :test do
 
   # Test
   gem 'rspec-rails'
+  gem 'factory_bot_rails'
+  gem 'rspec-request_describer'
+  gem 'faker'
 end
 
 group :development do

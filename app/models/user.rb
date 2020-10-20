@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  has_one :password_auth, dependent: :destroy,
+  has_one :password_auth, dependent: :destroy, inverse_of: :user,
     class_name: :'User::Auth::Password', foreign_key: :user_id
 
   accepts_nested_attributes_for :password_auth, allow_destroy: true

@@ -1,6 +1,6 @@
 class User::Auth::Password < ApplicationRecord
   has_secure_password
-  belongs_to :user
+  belongs_to :user, inverse_of: :password_auth
   validates :password, length: { in: 8..64 }
 
   # @return [User | nil]
