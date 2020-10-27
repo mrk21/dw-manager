@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchHistoryList, historySelector } from '@/modules/history';
+import { fetchHistoryList, selectAllHistories } from '@/modules/history';
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { OffsetPagination } from '@/api/OffsetPagination';
 import { makeTuple } from '@/libs';
-import { sessionSelectors } from '../session';
+import { selectMe } from '../session';
 
 export const useAllHistoryList = ({ condition, page = 1, per = 20 }: {
   condition?: string;
@@ -15,8 +15,8 @@ export const useAllHistoryList = ({ condition, page = 1, per = 20 }: {
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<JsonAPIError[]>();
   const [meta, setMeta] = useState<{ page: OffsetPagination; }>();
-  const histories = useAppSelector(historySelector.selectAll);
-  const me = useAppSelector(sessionSelectors.me);
+  const histories = useAppSelector(selectAllHistories);
+  const me = useAppSelector(selectMe);
 
   useEffect(() => {
     let cleanuped = false;

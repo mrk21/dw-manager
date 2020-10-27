@@ -3,14 +3,14 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { fetchTag, selectTagById } from '@/modules/tag';
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { compact, flatten, makeTuple } from '@/libs';
-import { sessionSelectors } from '../session';
+import { selectMe } from '../session';
 
 export const useTagList = (ids: string[]) => {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<JsonAPIError[]>();
   const tags = useAppSelector((state) => compact(ids.map(id => selectTagById(state, id))));
-  const me = useAppSelector(sessionSelectors.me);
+  const me = useAppSelector(selectMe);
 
   useEffect(() => {
     let cleanuped = false;

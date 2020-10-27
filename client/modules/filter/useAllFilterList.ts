@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchFilterList, filterSelector } from '@/modules/filter';
+import { fetchFilterList, selectAllFilters } from '@/modules/filter';
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { OffsetPagination } from '@/api/OffsetPagination';
 import { makeTuple } from '@/libs';
-import { sessionSelectors } from '../session';
+import { selectMe } from '../session';
 
 export const useAllFilterList = ({ page = 1, per = 100 }: {
   page?: number;
@@ -14,8 +14,8 @@ export const useAllFilterList = ({ page = 1, per = 100 }: {
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<JsonAPIError[]>();
   const [pageInfo, setPageInfo] = useState<OffsetPagination>();
-  const filters = useAppSelector(filterSelector.selectAll);
-  const me = useAppSelector(sessionSelectors.me);
+  const filters = useAppSelector(selectAllFilters);
+  const me = useAppSelector(selectMe);
 
   useEffect(() => {
     let cleanuped = false;

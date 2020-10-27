@@ -4,7 +4,7 @@ import { HYDRATE } from "next-redux-wrapper";
 import { historyReducer } from '@/modules/history';
 import { tagReducer } from '@/modules/tag';
 import { filterReducer } from '@/modules/filter';
-import { flashMessageReducer } from '@/modules/flash_message';
+import { flashReducer } from '@/modules/flash';
 import { sessionReducer } from '@/modules/session';
 
 export type RootState = ReturnType<typeof combinedReducer>;
@@ -13,7 +13,7 @@ const combinedReducer = combineReducers({
   history: historyReducer,
   tag: tagReducer,
   filter: filterReducer,
-  flashMessage: flashMessageReducer,
+  flash: flashReducer,
   session: sessionReducer,
 });
 

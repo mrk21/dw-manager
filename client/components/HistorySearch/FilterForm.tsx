@@ -3,8 +3,8 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { createFilter, updateFilter } from '@/modules/filter';
 import { ValidationFailedJsonAPIError, extractValidationFailed } from '@/api/JsonAPIError';
 import { ValidationError } from '@/components/ValidationError';
-import { flashMessageSuccessSet, flashMessageErrorSet } from '@/modules/flash_message';
-import { filterSelector } from '@/modules/filter';
+import { flashSuccessSet, flashErrorSet } from '@/modules/flash';
+import { selectFilterById } from '@/modules/filter';
 import { cloneDeep } from '@/libs';
 
 import Button from '@material-ui/core/Button';
@@ -31,7 +31,7 @@ export const FilterForm: FC<Props> = ({
   onChangeCondition
 }) => {
   const dispatch = useAppDispatch();
-  const filter = useAppSelector(state => filterSelector.selectById(state, filterId || ''))
+  const filter = useAppSelector(state => selectFilterById(state, filterId || ''))
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<ValidationFailedJsonAPIError | undefined>();
@@ -59,11 +59,11 @@ export const FilterForm: FC<Props> = ({
     setLoading(false);
 
     if (result.errors) {
-      dispatch(flashMessageErrorSet('Filter creation failed'));
+      dispatch(flashErrorSet('Filter creation failed'));
       setErrors(extractValidationFailed(result.errors));
     }
     else {
-      dispatch(flashMessageSuccessSet('Filter creation succeeded'));
+      dispatch(flashSuccessSet('Filter creation succeeded'));
       onClose(_);
     }
   }, [name, condition]);
@@ -79,11 +79,11 @@ export const FilterForm: FC<Props> = ({
     setLoading(false);
 
     if (result.errors) {
-      dispatch(flashMessageErrorSet('Filter updating failed'));
+      dispatch(flashErrorSet('Filter updating failed'));
       setErrors(extractValidationFailed(result.errors));
     }
     else {
-      dispatch(flashMessageSuccessSet('Filter updating succeeded'));
+      dispatch(flashSuccessSet('Filter updating succeeded'));
       onClose(_);
     }
   }, [name, condition]);

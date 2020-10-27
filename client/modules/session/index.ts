@@ -27,28 +27,27 @@ const sessionSlice = createSlice({
 export const sessionReducer = sessionSlice.reducer;
 
 // ActionCreators
-export const sessionActions = sessionSlice.actions;
-const { loggedIn, loggedOut } = sessionActions;
+const sessionActions = sessionSlice.actions;
+export const loggedIn = sessionActions.loggedIn;
+export const loggedOut = sessionActions.loggedOut;
 
 // Selectors
-export const sessionSelectors = {
-  me: (state: RootState) => state.session.me,
-};
+export const selectMe = (state: RootState) => state.session.me;
 
 // Operations
-export const sessionOperations = {
-  signIn: (auth: { email: string, password: string }) => async (dispatch: AppDispatch) => {
-    const { data, errors } = await sessionAPI.signIn(auth);
-    if (data) dispatch(loggedIn(data));
-    return { errors };
-  },
-  signOut: () => async (dispatch: AppDispatch) => {
-    await sessionAPI.signOut();
-    dispatch(loggedOut());
-  },
-  getMe: () => async (dispatch: AppDispatch) => {
-    const { data, errors } = await sessionAPI.getMe();
-    if (data) dispatch(loggedIn(data));
-    return { errors };
-  },
+export const signIn = (auth: { email: string, password: string }) => async (dispatch: AppDispatch) => {
+  const { data, errors } = await sessionAPI.signIn(auth);
+  if (data) dispatch(loggedIn(data));
+  return { errors };
+};
+
+export const signOut = () => async (dispatch: AppDispatch) => {
+  await sessionAPI.signOut();
+  dispatch(loggedOut());
+};
+
+export const fetchMe = () => async (dispatch: AppDispatch) => {
+  const { data, errors } = await sessionAPI.getMe();
+  if (data) dispatch(loggedIn(data));
+  return { errors };
 };

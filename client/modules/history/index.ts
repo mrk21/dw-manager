@@ -17,19 +17,26 @@ const historySlice = createSlice({
   name: 'history',
   initialState,
   reducers: {
-    historyAdded: historyAdapter.addOne,
-    historyReceived(state, { payload }: PayloadAction<History[]>) {
+    added: historyAdapter.addOne,
+    received(state, { payload }: PayloadAction<History[]>) {
       historyAdapter.setAll(state, payload);
     },
   },
 });
 
+// Reducer
 export const historyReducer = historySlice.reducer;
 
-export const { historyAdded, historyReceived } = historySlice.actions;
+// ActionCreators
+const historyActions = historySlice.actions;
+export const historyAdded = historyActions.added;
+export const historyReceived = historyActions.received;
 
-export const historySelector = historyAdapter.getSelectors((state: RootState) => state.history);
+// Selectors
+const historySelector = historyAdapter.getSelectors((state: RootState) => state.history);
+export const selectAllHistories = historySelector.selectAll;
 
+// Operations
 export const fetchHistoryList = ({
   condition = '',
   page = 1,

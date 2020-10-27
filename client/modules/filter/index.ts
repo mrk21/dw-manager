@@ -14,20 +14,29 @@ const filterSlice = createSlice({
   name: 'filter',
   initialState,
   reducers: {
-    filterAdded: filterAdapter.addOne,
-    filterUpdated: filterAdapter.updateOne,
-    filterReceived(state, { payload }: PayloadAction<Filter[]>) {
+    added: filterAdapter.addOne,
+    updated: filterAdapter.updateOne,
+    received(state, { payload }: PayloadAction<Filter[]>) {
       filterAdapter.setAll(state, payload);
     },
   },
 });
 
+// Reducer
 export const filterReducer = filterSlice.reducer;
 
-export const { filterAdded, filterUpdated, filterReceived } = filterSlice.actions;
+// ActionCreators
+const filterActions = filterSlice.actions;
+export const filterAdded = filterActions.added;
+export const filterUpdated = filterActions.updated;
+export const filterReceived = filterActions.received;
 
-export const filterSelector = filterAdapter.getSelectors((state: RootState) => state.filter);
+// Selectors
+const filterSelector = filterAdapter.getSelectors((state: RootState) => state.filter);
+export const selectAllFilters = filterSelector.selectAll;
+export const selectFilterById = filterSelector.selectById;
 
+// Operations
 export const fetchFilter = (id: string) => async (dispatch: AppDispatch) => {
   const { data, errors } = await filterAPI.getFilter(id);
   if (data) dispatch(filterAdded(data));

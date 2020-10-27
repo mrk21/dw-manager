@@ -1,9 +1,8 @@
 import { FC, useCallback } from 'react';
-import { sessionOperations } from '@/modules/session';
+import { signOut } from '@/modules/session';
 import Button from '@material-ui/core/Button';
 import { useAppDispatch } from '@/store/hooks';
 import { useRouter } from 'next/dist/client/router';
-const { signOut } = sessionOperations;
 
 export const SignOut: FC = () => {
   const dispatch = useAppDispatch();

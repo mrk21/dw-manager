@@ -15,9 +15,9 @@ const tagSlice = createSlice({
   name: 'tag',
   initialState,
   reducers: {
-    tagAdded: tagAdapter.addOne,
-    tagAddedMany: tagAdapter.addMany,
-    tagReceived(state, { payload }: PayloadAction<Tag[]>) {
+    added: tagAdapter.addOne,
+    addedMany: tagAdapter.addMany,
+    received(state, { payload }: PayloadAction<Tag[]>) {
       tagAdapter.setAll(state, payload);
     },
   },
@@ -27,7 +27,10 @@ const tagSlice = createSlice({
 export const tagReducer = tagSlice.reducer;
 
 // ActionCreators
-export const { tagAdded, tagAddedMany, tagReceived } = tagSlice.actions;
+const tagActions = tagSlice.actions;
+export const tagAdded = tagActions.added;
+export const tagAddedMany = tagActions.addedMany;
+export const tagReceived = tagActions.received;
 
 // Selectors
 const tagSelector = tagAdapter.getSelectors((state: RootState) => state.tag);
@@ -41,7 +44,7 @@ export const fetchTagList = ({ page = 1, per = 20 }: { page?: number, per?: numb
   return { errors, meta };
 };
 
-const _fetchTag = batchRequest(
+const fetchTagBatched = batchRequest(
   (dispatch: AppDispatch) => async (ids: string[]) => {
     const { data, errors } = await tagAPI.getTagBatched(ids);
     if (data) {
@@ -58,8 +61,7 @@ const _fetchTag = batchRequest(
   wait: 10,
   max: 1000,
 });
-
 export const fetchTag = (id: string) => async (dispatch: AppDispatch) => {
-  const { errors } = await _fetchTag(dispatch)(id);
+  const { errors } = await fetchTagBatched(dispatch)(id);
   return errors;
 };

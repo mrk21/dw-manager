@@ -1,6 +1,6 @@
 import { FC, useState, useEffect, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { flashMessageUnset } from '@/modules/flash_message';
+import { flashUnset } from '@/modules/flash';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import { AlertProps } from '@material-ui/lab/Alert/Alert';
@@ -11,13 +11,13 @@ export const FlashMessage: FC = () => {
   const [ severity, setSeverity ] = useState<AlertProps['severity']>(undefined);
 
   const dispatch = useAppDispatch();
-  const count = useAppSelector(state => state.flashMessage.count);
-  const error = useAppSelector(state => state.flashMessage.error);
-  const success = useAppSelector(state => state.flashMessage.success);
+  const count = useAppSelector(state => state.flash.count);
+  const error = useAppSelector(state => state.flash.error);
+  const success = useAppSelector(state => state.flash.success);
 
   const onClose = useCallback(() => {
     setIsOpened(false);
-    dispatch(flashMessageUnset());
+    dispatch(flashUnset());
   }, []);
 
   useEffect(() => {
