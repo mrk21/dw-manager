@@ -5,6 +5,7 @@ import * as tagAPI from '@/api/tags';
 import { RootState } from '@/modules/root';
 import { batchRequest } from '@/libs/batchRequest';
 import { compact } from '@/libs';
+import { flashErrorSet } from '../flash';
 
 const tagAdapter = createEntityAdapter<Tag>();
 
@@ -34,7 +35,7 @@ export const tagReceived = tagActions.received;
 
 // Selectors
 const tagSelector = tagAdapter.getSelectors((state: RootState) => state.tag);
-export const selectTags = tagSelector.selectAll;
+export const selectAllTags = tagSelector.selectAll;
 export const selectTagById = tagSelector.selectById;
 
 // Operations
@@ -45,23 +46,25 @@ export const fetchTagList = ({ page = 1, per = 20 }: { page?: number, per?: numb
 };
 
 const fetchTagBatched = batchRequest(
-  (dispatch: AppDispatch) => async (ids: string[]) => {
+  async (ids: string[], dispatch: AppDispatch) => {
     const { data, errors } = await tagAPI.getTagBatched(ids);
     if (data) {
       const tags = compact(Object.values(data).map(({ data }) => data));
       if (tags.length > 0) dispatch(tagAddedMany(tags));
     }
     if (errors) {
-      console.error(errors);
+      const message = errors.map(e => e.title).join("\n");
+      dispatch(flashErrorSet(message));
     }
     return data;
   },
-  (id) => id
-)({
-  wait: 10,
-  max: 1000,
-});
+  {
+    key: (id) => id,
+    wait: 10,
+    max: 1000,
+  }
+);
 export const fetchTag = (id: string) => async (dispatch: AppDispatch) => {
-  const { errors } = await fetchTagBatched(dispatch)(id);
+  const { errors } = await fetchTagBatched(id, dispatch);
   return errors;
 };

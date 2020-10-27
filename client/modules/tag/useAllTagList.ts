@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchTagList, selectTags } from '@/modules/tag';
+import { fetchTagList, selectAllTags } from '@/modules/tag';
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { OffsetPagination } from '@/api/OffsetPagination';
 import { makeTuple } from '@/libs';
@@ -14,7 +14,7 @@ export const useAllTagList = ({ page = 1, per = 100 }: {
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<JsonAPIError[]>();
   const [pageInfo, setPageInfo] = useState<OffsetPagination>();
-  const tags = useAppSelector(selectTags);
+  const tags = useAppSelector(selectAllTags);
   const me = useAppSelector(selectMe);
 
   useEffect(() => {
