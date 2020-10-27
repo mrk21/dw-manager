@@ -19,8 +19,9 @@ export const HistoryList: FC<HistoryListProps> = ({ histories }) => {
           <ListItem>
             <ListItemText>
               <b>{history.attributes.date}:</b>&nbsp;
-              <span>{history.attributes.title}</span>&nbsp;
-              <span>{history.attributes.amount}</span>
+              <span>{history.attributes.institution}</span>&nbsp;
+              <span>{history.attributes.title}{history.attributes.isTransfer ? ' (振替)' : ''}</span>&nbsp;
+              <b>{history.attributes.amount}</b>&nbsp;
               <HistoryTagList history={history} />
             </ListItemText>
           </ListItem>

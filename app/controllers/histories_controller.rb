@@ -25,8 +25,8 @@ class HistoriesController < ApplicationController
   private
 
   def filter_params
-    result = params.permit(:condition)
-    result[:condition] = result[:condition].to_s.strip
+    result = {}
+    result[:condition] = params[:condition].to_s.strip
     result
   end
 end

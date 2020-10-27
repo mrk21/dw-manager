@@ -47,6 +47,9 @@ class Filter < ApplicationRecord
     def attrs
       {
         tag: ->(context, store, value) { TagCondition.new(context, store, value) },
+        institution: ->(context, store, value) { InstitutionCondition.new(context, store, value) },
+        transfer: ->(context, store, value) { TransferCondition.new(context, store, value) },
+        filter: ->(context, store, value) { FilterCondition.new(context, store, value) },
       }
     end
 
@@ -56,6 +59,13 @@ class Filter < ApplicationRecord
         tags = Tag.where(user: @filter.user, name: tag_names).select(:id, :name)
         tags = Hash[*tags.map { |t| [t.name, t.id] }.flatten(1)]
         store[:tag][:ids] = tags
+      end
+
+      if store[:filter]
+        filter_names = store[:filter][:values]
+        filters = Filter.where(user: @filter.user, name: filter_names)
+        filters = Hash[*filters.map { |f| [f.name, f] }.flatten(1)]
+        store[:filter][:records] = filters
       end
     end
 
@@ -72,6 +82,27 @@ class Filter < ApplicationRecord
               AND #{Arel::Table.new('t')[:tag_id].eq(tag_id).to_sql}
           )
         SQL
+      end
+    end
+
+    class InstitutionCondition < AttributeCondition
+      def for_arel
+        context.table[:institution].eq(value)
+      end
+    end
+
+    class TransferCondition < AttributeCondition
+      def for_arel
+        context.table[:is_transfer].eq(value == 'true')
+      end
+    end
+
+    class FilterCondition < AttributeCondition
+      def for_arel
+        filter = store[:filter][:records][value]
+        return Arel.sql('0') if filter.nil?
+
+        filter.parsed_condition.to_arel
       end
     end
   end
