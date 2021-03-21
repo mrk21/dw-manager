@@ -1,6 +1,7 @@
 import * as t from 'io-ts';
 import { decodeJsonAPIArrayResponse } from '@/api/JsonAPIArrayResponse';
 import { History } from '@/api/histories/History';
+import { HistoryReport } from '@/api/histories/HistoryReport';
 import { OffsetPagination } from '@/api/OffsetPagination';
 
 const ListMeta = t.type({
@@ -22,4 +23,17 @@ export async function getHistoryList({
   });
   const json = await response.json();
   return decodeJsonAPIArrayResponse(json, { data: History, meta: ListMeta });
+};
+
+export async function getHistoryReport({
+  condition = '',
+}: {
+  condition?: string;
+}) {
+  const response = await fetch(`http://localhost:4000/histories/report?condition=${condition}`, {
+    mode: 'cors',
+    credentials: 'include',
+  });
+  const json = await response.json();
+  return decodeJsonAPIArrayResponse(json, { data: HistoryReport, meta: t.undefined });
 };

@@ -3,6 +3,7 @@ import Head from 'next/head'
 import { HistorySearch } from '@/components/HistorySearch/HistorySearch';
 import { TagList } from '@/components/TagList';
 import { FilterList } from '@/components/FilterList';
+import { HistoryReport } from '@/components/HistoryReport';
 import Grid from '@material-ui/core/Grid';
 import { LoggedInLayout } from '@/components/layout/LoggedInLayout';
 
@@ -22,11 +23,14 @@ const IndexPage: NextPage = () => {
           <TagList />
           <FilterList />
         </Grid>
-        <Grid item xs={10}>
+        <Grid item xs={7}>
           <HistorySearch
             tagId={tagId ? tagId : undefined}
             filterId={filterId ? filterId : undefined}
           />
+        </Grid>
+        <Grid item xs={3}>
+          <HistoryReport />
         </Grid>
       </Grid>
     </LoggedInLayout>

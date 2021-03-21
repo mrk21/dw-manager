@@ -8,6 +8,8 @@ import { HistoryList } from './HistoryList';
 import { useAllHistoryList } from '@/modules/history/useAllHistoryList';
 import { useFilter } from '@/modules/filter/useFilter';
 import { useTag } from '@/modules/tag/useTag';
+import { selectHistorySearchCondition, historySearchConditionSet } from '@/modules/historySearch';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 export type HistorySearchProps = {
   tagId?: string;
@@ -15,8 +17,11 @@ export type HistorySearchProps = {
 };
 
 export const HistorySearch: FC<HistorySearchProps> = ({ tagId, filterId }) => {
+  const dispatch = useAppDispatch();
+
   // condition
-  const [condition, setCondition] = useState<string>();
+  const condition = useAppSelector(selectHistorySearchCondition);
+  const setCondition = (condition: string) => dispatch(historySearchConditionSet(condition));
   const setConditionThrottled = useCallback(throttle((value: string) => setCondition(value), 1000), []);
 
   // paginations
@@ -29,7 +34,7 @@ export const HistorySearch: FC<HistorySearchProps> = ({ tagId, filterId }) => {
   // data
   const [loadingFilter, filterErrors, filter] = useFilter(filterId);
   const [loadingTag, tagErrors, tag] = useTag(tagId);
-  const [loadingHistories, historiesErrors, histories, historiesMeta] = useAllHistoryList({ condition, page });
+  const [loadingHistories, historiesErrors, histories, historiesMeta] = useAllHistoryList({ condition, page, per: 30 });
 
   const loading = loadingFilter || loadingTag || loadingHistories;
   const errors = [...(filterErrors || []), ...(tagErrors || []), ...(historiesErrors || [])];
