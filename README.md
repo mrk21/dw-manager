@@ -39,7 +39,19 @@ vi .envrc.local
 direnv allow .
 docker-compose build
 docker-compose run app bundle install
+docker-compose run app racc lib/search_query/parser.y.rb
 docker-compose run app rails db:setup
 docker-compose up
 open http://localhost:${DOCKER_HOST_APP_PORT}/
 ```
+
+## Development
+
+### Default login User
+
+- User1
+  - email: user1@localhost.local
+  - pass: password
+- User2
+  - email: user2@localhost.local
+  - pass: password
