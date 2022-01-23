@@ -23,6 +23,7 @@ RUN apt-get update -qq && \
 
 # Install MySQL 5.8 client and native libraries
 # @see https://dev.mysql.com/doc/mysql-apt-repo-quick-guide/en/#repo-qg-apt-repo-manual-setup
+# @see https://dev.mysql.com/doc/refman/8.0/en/checking-gpg-signature.html
 COPY docker/app/mysql_pubkey.asc /tmp/mysql_pubkey.asc
 RUN apt-key add /tmp/mysql_pubkey.asc && \
     echo 'deb http://repo.mysql.com/apt/debian/ buster mysql-8.0' | tee /etc/apt/sources.list.d/mysql.list && \
