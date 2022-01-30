@@ -6,10 +6,10 @@ import { batchGetTag } from '@/api/tags';
 import { jsonAPIErrorsToFlash } from '../flash/index';
 import { UseQueryResult, useQuery } from 'react-query';
 import { Tag } from '../../api/tags/Tag';
-import { useMe } from '../session/useMe';
+import { useHasMe } from '../session/useHasMe';
 
 export const useTag = (id: string | undefined) => {
-  const me = useMe();
+  const hasMe = useHasMe();
   const dispatch = useAppDispatch();
   const batched = getByIDBatched(batchGetTag, jsonAPIErrorsToFlash(dispatch));
 
@@ -21,7 +21,7 @@ export const useTag = (id: string | undefined) => {
       return data;
     },
     {
-      enabled: !!me.data && !!id,
+      enabled: hasMe && !!id,
       staleTime: 10 * 1000,
     }
   );

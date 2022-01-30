@@ -3,12 +3,12 @@ import { makeTuple } from '@/libs';
 import { getHistoryReport } from '@/api/histories';
 import { useQuery, UseQueryResult } from 'react-query';
 import { HistoryReport } from '@/api/histories/HistoryReport';
-import { useMe } from '../session/useMe';
+import { useHasMe } from '../session/useHasMe';
 
 export const useHistoryReport = ({ condition }: {
   condition?: string;
 } = {}) => {
-  const me = useMe();
+  const hasMe = useHasMe();
 
   const { isLoading, error, data } = <UseQueryResult<HistoryReport[], JsonAPIError[]>>useQuery(
     ['history-report', 'condition', condition],
@@ -18,7 +18,7 @@ export const useHistoryReport = ({ condition }: {
       return data;
     },
     {
-      enabled: !!me.data,
+      enabled: hasMe
     }
   );
 

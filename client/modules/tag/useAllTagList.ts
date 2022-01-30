@@ -5,13 +5,13 @@ import { makeTuple } from '@/libs';
 import { getTagList } from '@/api/tags';
 import { UseQueryResult, useQuery } from 'react-query';
 import { Tag } from '../../api/tags/Tag';
-import { useMe } from '../session/useMe';
+import { useHasMe } from '../session/useHasMe';
 
 export const useAllTagList = ({ page = 1, per = 100 }: {
   page?: number;
   per?: number;
 } = {}) => {
-  const me = useMe();
+  const hasMe = useHasMe();
   const [pageInfo, setPageInfo] = useState<OffsetPagination>();
 
   const { isLoading, error, data } = <UseQueryResult<Tag[], JsonAPIError[]>>useQuery(
@@ -23,7 +23,7 @@ export const useAllTagList = ({ page = 1, per = 100 }: {
       return data;
     },
     {
-      enabled: !!me.data,
+      enabled: hasMe
     }
   );
 

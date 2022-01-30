@@ -19,7 +19,6 @@ export const useSignIn = (options: Options = {}) => {
     },
     {
       onSuccess: (user) => {
-        //queryClient.invalidateQueries(['session']);
         queryClient.setQueryData(['session'], user);
         if (options.onSuccess) options.onSuccess(user);
       },

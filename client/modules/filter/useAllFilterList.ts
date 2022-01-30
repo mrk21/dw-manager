@@ -5,13 +5,13 @@ import { makeTuple } from '@/libs';
 import { UseQueryResult, useQuery } from 'react-query';
 import { Filter } from '../../api/filters/Filter';
 import { getFilterList } from '../../api/filters/index';
-import { useMe } from '../session/useMe';
+import { useHasMe } from '../session/useHasMe';
 
 export const useAllFilterList = ({ page = 1, per = 100 }: {
   page?: number;
   per?: number;
 } = {}) => {
-  const me = useMe();
+  const hasMe = useHasMe();
   const [pageInfo, setPageInfo] = useState<OffsetPagination>();
 
   const { isLoading, error, data } = <UseQueryResult<Filter[], JsonAPIError[]>>useQuery(
@@ -23,7 +23,7 @@ export const useAllFilterList = ({ page = 1, per = 100 }: {
       return data;
     },
     {
-      enabled: !!me.data,
+      enabled: hasMe
     }
   );
 
