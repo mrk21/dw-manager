@@ -1,7 +1,6 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { createWrapper } from "next-redux-wrapper";
 import { RootState, rootReducer } from '@/modules/root';
-import { CreateWrapper } from '@/store/CreateWrappter';
 
 export type AppStore = ReturnType<typeof makeStore>;
 export type AppDispatch = AppStore['dispatch'];
@@ -19,4 +18,4 @@ export const makeStore = () => (
   })
 );
 
-export const wrapper = (<CreateWrapper<AppStore>>createWrapper)((_) => makeStore());
+export const wrapper = createWrapper((_) => makeStore());
