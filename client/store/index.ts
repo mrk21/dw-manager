@@ -18,4 +18,4 @@ export const makeStore = () => (
   })
 );
 
-export const wrapper = createWrapper((_) => makeStore());
+export const wrapper = createWrapper(makeStore);
