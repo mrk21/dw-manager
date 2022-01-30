@@ -1,40 +1,31 @@
-import { useState, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchFilterList, selectAllFilters } from '@/modules/filter';
+import { useState } from 'react';
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { OffsetPagination } from '@/api/OffsetPagination';
 import { makeTuple } from '@/libs';
-import { selectMe } from '../session';
+import { UseQueryResult, useQuery } from 'react-query';
+import { Filter } from '../../api/filters/Filter';
+import { getFilterList } from '../../api/filters/index';
+import { useMe } from '../session/useMe';
 
 export const useAllFilterList = ({ page = 1, per = 100 }: {
   page?: number;
   per?: number;
 } = {}) => {
-  const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState<JsonAPIError[]>();
+  const me = useMe();
   const [pageInfo, setPageInfo] = useState<OffsetPagination>();
-  const filters = useAppSelector(selectAllFilters);
-  const me = useAppSelector(selectMe);
 
-  useEffect(() => {
-    let cleanuped = false;
-
-    const fetchData = async () => {
-      setLoading(true);
-      const { errors, meta } = await dispatch(fetchFilterList({ page, per }));
-      if (cleanuped) return;
-      setErrors(errors);
+  const { isLoading, error, data } = <UseQueryResult<Filter[], JsonAPIError[]>>useQuery(
+    ['filters', 'page', page, 'per', per],
+    async () => {
+      const { data, errors, meta } = await getFilterList({ page, per });
+      if (errors) throw errors;
       setPageInfo(meta ? meta.page : undefined);
-      setLoading(false);
-    };
-    if (me) fetchData();
+      return data;
+    },
+    {
+      enabled: !!me.data,
+    }
+  );
 
-    return () => {
-      cleanuped = true;
-      setLoading(false);
-    };
-  }, [me, page, per]);
-
-  return makeTuple(loading, errors, filters, pageInfo);
+  return makeTuple(isLoading, error || undefined, data || [], pageInfo);
 };

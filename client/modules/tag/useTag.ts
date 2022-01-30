@@ -1,34 +1,30 @@
-import { useState, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { selectTagById, fetchTag } from '@/modules/tag';
+import { useAppDispatch } from '@/store/hooks';
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { makeTuple } from '@/libs';
-import { selectMe } from '../session';
+import { getByIDBatched } from '../../api/batched';
+import { batchGetTag } from '@/api/tags';
+import { jsonAPIErrorsToFlash } from '../flash/index';
+import { UseQueryResult, useQuery } from 'react-query';
+import { Tag } from '../../api/tags/Tag';
+import { useMe } from '../session/useMe';
 
 export const useTag = (id: string | undefined) => {
+  const me = useMe();
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<JsonAPIError[]>();
-  const tag = useAppSelector((state) => id ? selectTagById(state, id) : undefined);
-  const me = useAppSelector(selectMe);
+  const batched = getByIDBatched(batchGetTag, jsonAPIErrorsToFlash(dispatch));
 
-  useEffect(() => {
-    let cleanuped = false;
+  const { isLoading, error, data } = <UseQueryResult<Tag, JsonAPIError[]>>useQuery(
+    ['tag', id || '-'],
+    async () => {
+      const { data, errors } = await batched(id || '-');
+      if (errors) throw errors;
+      return data;
+    },
+    {
+      enabled: !!me.data && !!id,
+      staleTime: 10 * 1000,
+    }
+  );
 
-    const fetchData = async () => {
-      setLoading(true);
-      const errors = await dispatch(fetchTag(id || ''));
-      if (cleanuped) return;
-      setErrors(errors);
-      setLoading(false);
-    };
-    if (me && id && !tag) fetchData();
-
-    return () => {
-      cleanuped = true;
-      setLoading(false);
-    };
-  }, [me, id, tag]);
-
-  return makeTuple(loading, errors, tag);
+  return makeTuple(isLoading, error || undefined, data);
 };

@@ -1,10 +1,8 @@
 import { FC, useState, useEffect, useCallback, ChangeEvent } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createFilter, updateFilter } from '@/modules/filter';
+import { useAppDispatch } from '@/store/hooks';
 import { ValidationFailedJsonAPIError, extractValidationFailed } from '@/api/JsonAPIError';
 import { ValidationError } from '@/components/ValidationError';
 import { flashSuccessSet, flashErrorSet } from '@/modules/flash';
-import { selectFilterById } from '@/modules/filter';
 import { cloneDeep } from '@/libs';
 
 import Button from '@material-ui/core/Button';
@@ -14,6 +12,9 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { Indicator } from '../Indicator';
+import { useFilter } from '../../modules/filter/useFilter';
+import { useCreateFilter } from '../../modules/filter/useCreateFilter';
+import { useUpdateFilter } from '../../modules/filter/useUpdateFilter';
 
 type Props = {
   filterId?: string;
@@ -31,12 +32,34 @@ export const FilterForm: FC<Props> = ({
   onChangeCondition
 }) => {
   const dispatch = useAppDispatch();
-  const filter = useAppSelector(state => selectFilterById(state, filterId || ''))
-
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<ValidationFailedJsonAPIError | undefined>();
-  const [name, setName] = useState(filter ? filter.attributes.name : '');
 
+  const filter = useFilter(filterId)[2];
+  const createFilterMutation = useCreateFilter({
+    onSuccess: (data) => {
+      dispatch(flashSuccessSet('Filter creation succeeded'));
+      onClose(data);
+    },
+    onError: (errors) => {
+      dispatch(flashErrorSet('Filter creation failed'));
+      setErrors(extractValidationFailed(errors));
+    }
+  });
+
+  const updateFilterMutation = useUpdateFilter({
+    onSuccess: (data) => {
+      dispatch(flashSuccessSet('Filter updating succeeded'));
+      onClose(data);
+    },
+    onError: (errors) => {
+      dispatch(flashErrorSet('Filter updating failed'));
+      setErrors(extractValidationFailed(errors));
+    }
+  });
+
+  const loading = createFilterMutation.isLoading || updateFilterMutation.isLoading;
+
+  const [name, setName] = useState(filter ? filter.attributes.name : '');
   const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => setName(e.target.value), []);
   const onChangeCondition_ = useCallback((e: ChangeEvent<HTMLInputElement>) => onChangeCondition(e.target.value), []);
 
@@ -53,39 +76,16 @@ export const FilterForm: FC<Props> = ({
     if (filter) setName(filter.attributes.name);
   }, [filter]);
 
-  const onCreate = useCallback(async (_: any) => {
-    setLoading(true);
-    const result = await dispatch(createFilter({ name, condition }));
-    setLoading(false);
-
-    if (result.errors) {
-      dispatch(flashErrorSet('Filter creation failed'));
-      setErrors(extractValidationFailed(result.errors));
-    }
-    else {
-      dispatch(flashSuccessSet('Filter creation succeeded'));
-      onClose(_);
-    }
+  const onCreate = useCallback(() => {
+    createFilterMutation.mutate({ name, condition });
   }, [name, condition]);
 
-  const onUpdate = useCallback(async (_: any) => {
+  const onUpdate = useCallback(() => {
     if (!filter) return;
-    const filter_ = cloneDeep(filter);
-    filter_.attributes.name = name;
-    filter_.attributes.condition = condition;
-
-    setLoading(true);
-    const result = await dispatch(updateFilter(filter_));
-    setLoading(false);
-
-    if (result.errors) {
-      dispatch(flashErrorSet('Filter updating failed'));
-      setErrors(extractValidationFailed(result.errors));
-    }
-    else {
-      dispatch(flashSuccessSet('Filter updating succeeded'));
-      onClose(_);
-    }
+    const updated = cloneDeep(filter);
+    updated.attributes.name = name;
+    updated.attributes.condition = condition;
+    updateFilterMutation.mutate(updated);
   }, [name, condition]);
 
   return (

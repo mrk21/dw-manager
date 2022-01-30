@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { AppDispatch } from '../../store/index';
+import { JsonAPIError } from '../../api/JsonAPIError';
 
 export type FlashState = {
   count: number;
@@ -40,3 +42,9 @@ const flashActions = flashSlice.actions;
 export const flashErrorSet = flashActions.errorSet;
 export const flashSuccessSet = flashActions.successSet;
 export const flashUnset = flashActions.unset;
+
+// Utils
+export const jsonAPIErrorsToFlash = (dispatch: AppDispatch) => (errors: JsonAPIError[]) => {
+  const message = errors.map(e => e.title).join("\n");
+  dispatch(flashErrorSet(message));
+};

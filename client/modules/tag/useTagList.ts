@@ -1,38 +1,33 @@
-import { useState, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchTag, selectTagById } from '@/modules/tag';
+import { useAppDispatch } from '@/store/hooks';
 import { JsonAPIError } from '@/api/JsonAPIError';
+import { Tag } from '@/api/tags/Tag';
 import { compact, flatten, makeTuple } from '@/libs';
-import { selectMe } from '../session';
+import { batchGetTag } from '@/api/tags';
+import { useQueries, UseQueryResult } from 'react-query';
+import { getByIDBatched } from '../../api/batched';
+import { jsonAPIErrorsToFlash } from '../flash/index';
+import { useMe } from '../session/useMe';
 
 export const useTagList = (ids: string[]) => {
+  const me = useMe();
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<JsonAPIError[]>();
-  const tags = useAppSelector((state) => compact(ids.map(id => selectTagById(state, id))));
-  const me = useAppSelector(selectMe);
+  const batched = getByIDBatched(batchGetTag, jsonAPIErrorsToFlash(dispatch));
 
-  useEffect(() => {
-    let cleanuped = false;
+  const results = <UseQueryResult<Tag, JsonAPIError[]>[]>useQueries(
+    ids.map(id => ({
+      queryKey: ['tag', id],
+      queryFn: async () => {
+        const { data, errors } = await batched(id || '-');
+        if (errors) throw errors;
+        return data;
+      },
+      enabled: !!me.data,
+      staleTime: 10 * 1000,
+    }))
+  );
+  const tags = compact(results.map(r => r.data));
+  const errors = flatten(compact(results.map(r => r.error || undefined)));
+  const isLoading = results.some(r => r.isLoading);
 
-    const fetchData = async () => {
-      setLoading(true);
-      const e = flatten(compact(
-        await Promise.all(
-          ids.map(id => dispatch(fetchTag(id)))
-        )
-      ));
-      if (cleanuped) return;
-      setErrors(e.length > 0 ? e : undefined);
-      setLoading(false);
-    };
-    if (me && tags.length !== ids.length) fetchData();
-
-    return () => {
-      cleanuped = true;
-      setLoading(false);
-    };
-  }, [me, ids, tags]);
-
-  return makeTuple(loading, errors, tags);
+  return makeTuple(isLoading, errors.length > 0 ? errors : undefined, tags);
 };

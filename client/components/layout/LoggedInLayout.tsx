@@ -7,16 +7,16 @@ import { FlashMessage } from '@/components/FlashMessage';
 import { SignOut } from '../SignOut';
 
 export const LoggedInLayout: FC = ({ children }) => {
-  const [ loading, errors, me ] = useMe();
+  const me = useMe();
 
   return (
     <div>
       <header>
         <h1><Link href="/">dw-manager</Link></h1>
         {(() => {
-          if (me) return (
+          if (me.data) return (
             <div>
-              <p>{me.attributes.name}</p>
+              <p>{me.data.attributes.name}</p>
               <p><SignOut /></p>
             </div>
           );
@@ -25,8 +25,8 @@ export const LoggedInLayout: FC = ({ children }) => {
       </header>
       <div>
         {(() => {
-          if (loading) return <Indicator />;
-          if (errors) return <SignIn />;
+          if (me.isLoading) return <Indicator />;
+          if (me.errors) return <SignIn />;
           return children;
         })()}
       </div>

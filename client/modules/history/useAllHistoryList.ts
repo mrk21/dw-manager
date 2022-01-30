@@ -1,41 +1,32 @@
-import { useState, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchHistoryList, selectAllHistories } from '@/modules/history';
+import { useState } from 'react';
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { OffsetPagination } from '@/api/OffsetPagination';
 import { makeTuple } from '@/libs';
-import { selectMe } from '../session';
+import { UseQueryResult, useQuery } from 'react-query';
+import { getHistoryList } from '@/api/histories';
+import { useMe } from '../session/useMe';
+import { History } from '@/api/histories/History';
 
 export const useAllHistoryList = ({ condition, page = 1, per = 20 }: {
   condition?: string;
   page?: number;
   per?: number;
 } = {}) => {
-  const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState<JsonAPIError[]>();
+  const me = useMe();
   const [meta, setMeta] = useState<{ page: OffsetPagination; }>();
-  const histories = useAppSelector(selectAllHistories);
-  const me = useAppSelector(selectMe);
 
-  useEffect(() => {
-    let cleanuped = false;
-
-    const fetchData = async () => {
-      setLoading(true);
-      const { errors, meta } = await dispatch(fetchHistoryList({ condition, page, per }));
-      if (cleanuped) return;
-      setErrors(errors);
+  const { isLoading, error, data } = <UseQueryResult<History[], JsonAPIError[]>>useQuery(
+    ['histories', 'condition', condition, 'page', page, 'per', per],
+    async () => {
+      const { data, errors, meta } = await getHistoryList({ condition, page, per });
+      if (errors) throw errors;
       setMeta(meta);
-      setLoading(false);
-    };
-    if (me && typeof condition !== 'undefined') fetchData();
+      return data;
+    },
+    {
+      enabled: !!me.data,
+    }
+  );
 
-    return () => {
-      cleanuped = true;
-      setLoading(false);
-    };
-  }, [me, condition, page, per]);
-
-  return makeTuple(loading, errors, histories, meta);
+  return makeTuple(isLoading, error || undefined, data || [], meta);
 };

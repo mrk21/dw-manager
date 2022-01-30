@@ -1,34 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { selectFilterById, fetchFilter } from '@/modules/filter';
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { makeTuple } from '@/libs';
-import { selectMe } from '../session';
+import { getFilter } from '../../api/filters/index';
+import { Filter } from '../../api/filters/Filter';
+import { UseQueryResult, useQuery } from 'react-query';
+import { useMe } from '../session/useMe';
 
 export const useFilter = (id: string | undefined) => {
-  const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<JsonAPIError[]>();
-  const filter = useAppSelector((state) => id ? selectFilterById(state, id) : undefined);
-  const me = useAppSelector(selectMe);
+  const me = useMe();
 
-  useEffect(() => {
-    let cleanuped = false;
+  const { isLoading, error, data } = <UseQueryResult<Filter, JsonAPIError[]>>useQuery(
+    ['filter', id || '-'],
+    async () => {
+      const { data, errors } = await getFilter(id || '-');
+      if (errors) throw errors;
+      return data;
+    },
+    {
+      enabled: !!me.data && !!id,
+    }
+  );
 
-    const fetchData = async () => {
-      setLoading(true);
-      const { errors } = await dispatch(fetchFilter(id || ''))
-      if (cleanuped) return;
-      setErrors(errors);
-      setLoading(false);
-    };
-    if (me && id && !filter) fetchData();
-
-    return () => {
-      cleanuped = true;
-      setLoading(false);
-    };
-  }, [me, id, filter]);
-
-  return makeTuple(loading, errors, filter);
+  return makeTuple(isLoading, error || undefined, data);
 };

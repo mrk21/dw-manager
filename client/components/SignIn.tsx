@@ -1,5 +1,4 @@
 import { FC, useCallback, useRef } from 'react';
-import { signIn } from '@/modules/session';
 import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
@@ -7,18 +6,26 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Container from '@material-ui/core/Container';
 import { useAppDispatch } from '@/store/hooks';
 import { flashErrorSet, flashSuccessSet } from '@/modules/flash';
+import { useSignIn } from '../modules/session/useSignIn';
 
 export const SignIn: FC = () => {
   const dispatch = useAppDispatch();
   const emailRef = useRef<HTMLInputElement>();
   const passwordRef = useRef<HTMLInputElement>();
 
-  const OnSubmit = useCallback(async (_: any) => {
+  const signIn = useSignIn({
+    onSuccess: (_) => {
+      dispatch(flashSuccessSet('sign-in succeeded'));
+    },
+    onError: (_) => {
+      dispatch(flashErrorSet('sign-in failed'));
+    }
+  });
+
+  const onSubmit = useCallback(() => {
     const email = emailRef.current?.value || '';
     const password = passwordRef.current?.value || '';
-    const { errors } = await dispatch(signIn({ email, password }));
-    if (errors) dispatch(flashErrorSet('sign-in failed'));
-    else dispatch(flashSuccessSet('sign-in succeeded'));
+    signIn.mutate({ email, password });
   }, []);
 
   return (
@@ -40,7 +47,7 @@ export const SignIn: FC = () => {
           fullWidth={true}
         />
       </FormControl>
-      <Button variant="contained" onClick={OnSubmit} >sign-in</Button>
+      <Button variant="contained" onClick={onSubmit} >sign-in</Button>
     </Container>
   );
 };
