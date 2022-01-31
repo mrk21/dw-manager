@@ -1,4 +1,4 @@
-import { useMutation, UseMutationResult, useQueryClient } from "react-query"
+import { useMutation, useQueryClient } from "react-query"
 import { NewFilter, Filter } from '../../api/filters/Filter';
 import { createFilter } from '../../api/filters/index';
 import { JsonAPIError } from '../../api/JsonAPIError';
@@ -11,8 +11,8 @@ type Options = {
 export const useCreateFilter = (options: Options = {}) => {
   const queryClient = useQueryClient();
 
-  return <UseMutationResult<Filter, JsonAPIError[]>>useMutation(
-    async (attributes: NewFilter['attributes']) => {
+  return useMutation<Filter, JsonAPIError[], NewFilter['attributes']>(
+    async (attributes) => {
       const { data, errors } = await createFilter({ type: 'filter', attributes });
       if (errors) throw errors;
       return data as NonNullable<typeof data>;

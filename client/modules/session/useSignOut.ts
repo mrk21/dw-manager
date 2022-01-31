@@ -1,5 +1,5 @@
 import { JsonAPIError } from '@/api/JsonAPIError';
-import { useMutation, UseMutationResult } from 'react-query';
+import { useMutation } from 'react-query';
 import { signOut } from '@/api/sessions';
 
 type Options = {
@@ -8,7 +8,7 @@ type Options = {
 };
 
 export const useSignOut = (options: Options = {}) => {
-  return <UseMutationResult<null, JsonAPIError[]>>useMutation(
+  return useMutation<null, JsonAPIError[]>(
     async () => {
       return await signOut();
     },

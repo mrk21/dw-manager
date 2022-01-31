@@ -1,10 +1,10 @@
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { getMe } from '@/api/sessions';
-import { useQuery, UseQueryResult } from 'react-query';
+import { useQuery } from 'react-query';
 import { User } from '../../api/sessions/User';
 
 export const useMe = () => {
-  const { isLoading, error, data } = <UseQueryResult<User, JsonAPIError[]>>useQuery(
+  const { isLoading, error, data } = useQuery<User | undefined, JsonAPIError[]>(
     ['session'],
     async () => {
       const { data, errors } = await getMe();

@@ -17,7 +17,7 @@ export const SignOut: FC = () => {
     }
   });
 
-  const OnSubmit = useCallback(() => { signOut.mutate(null) }, []);
+  const OnSubmit = useCallback(() => { signOut.mutate() }, []);
 
   return (
     <Button variant="contained" onClick={OnSubmit} >sign-out</Button>

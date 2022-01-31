@@ -3,7 +3,7 @@ import { JsonAPIError } from '@/api/JsonAPIError';
 import { Tag } from '@/api/tags/Tag';
 import { compact, flatten, makeTuple } from '@/libs';
 import { batchGetTag } from '@/api/tags';
-import { useQueries, UseQueryResult } from 'react-query';
+import { useQueries, UseQueryOptions } from 'react-query';
 import { getByIDBatched } from '../../api/batched';
 import { jsonAPIErrorsToFlash } from '../flash/index';
 import { useHasMe } from '../session/useHasMe';
@@ -13,8 +13,8 @@ export const useTagList = (ids: string[]) => {
   const dispatch = useAppDispatch();
   const batched = getByIDBatched(batchGetTag, jsonAPIErrorsToFlash(dispatch));
 
-  const results = <UseQueryResult<Tag, JsonAPIError[]>[]>useQueries(
-    ids.map(id => ({
+  const results = useQueries(
+    ids.map((id): UseQueryOptions<Tag | undefined, JsonAPIError[]> => ({
       queryKey: ['tag', id],
       queryFn: async () => {
         const { data, errors } = await batched(id || '-');

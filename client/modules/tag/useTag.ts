@@ -4,7 +4,7 @@ import { makeTuple } from '@/libs';
 import { getByIDBatched } from '../../api/batched';
 import { batchGetTag } from '@/api/tags';
 import { jsonAPIErrorsToFlash } from '../flash/index';
-import { UseQueryResult, useQuery } from 'react-query';
+import { useQuery } from 'react-query';
 import { Tag } from '../../api/tags/Tag';
 import { useHasMe } from '../session/useHasMe';
 
@@ -13,7 +13,7 @@ export const useTag = (id: string | undefined) => {
   const dispatch = useAppDispatch();
   const batched = getByIDBatched(batchGetTag, jsonAPIErrorsToFlash(dispatch));
 
-  const { isLoading, error, data } = <UseQueryResult<Tag, JsonAPIError[]>>useQuery(
+  const { isLoading, error, data } = useQuery<Tag | undefined, JsonAPIError[]>(
     ['tag', id || '-'],
     async () => {
       const { data, errors } = await batched(id || '-');

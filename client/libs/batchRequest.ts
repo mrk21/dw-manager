@@ -1,32 +1,36 @@
 import { debounce, uniq } from '@/libs';
 
+type ParamBase = {
+  toString(): string
+};
+
 type BatchedResponse<Response> = {
   [key: string]: Response;
 };
 
-type RequestFn<Params extends { toString(): string }, Response, Vars extends any[]> =
+type RequestFn<Params extends ParamBase, Response, Vars extends any[]> =
   (paramsList: Params[], ...vars: [...Vars]) =>
     Promise<BatchedResponse<Response> | undefined>;
 
-type KeyFn<Params extends { toString(): string }> = (params: Params) => string;
+type KeyFn<Params extends ParamBase> = (params: Params) => string;
 
-type Config<Params extends { toString(): string }> = {
+type Config<Params extends ParamBase> = {
   key?: KeyFn<Params>;
   wait?: number; // [msec]
   max?: number;
 };
 
-type Queue<Params extends { toString(): string }, Response> = Array<{
+type Queue<Params extends ParamBase, Response> = Array<{
   params: Params;
   resolve: (response: Response) => void;
   reject: (error: Error) => void;
 }>;
 
-export function batchRequest<Params extends { toString(): string }, Response, Vars extends any[]>(
+export function batchRequest<Params extends ParamBase, Response, Vars extends any[]>(
   request: RequestFn<Params, Response, Vars>,
   {
     key = (param) => param.toString(),
-    wait = 10,
+    wait = 20,
     max = 100,
   }: Config<Params> = {}
 ) {

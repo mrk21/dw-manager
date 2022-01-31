@@ -3,7 +3,7 @@ import { JsonAPIError } from '@/api/JsonAPIError';
 import { OffsetPagination } from '@/api/OffsetPagination';
 import { makeTuple } from '@/libs';
 import { getTagList } from '@/api/tags';
-import { UseQueryResult, useQuery } from 'react-query';
+import { useQuery } from 'react-query';
 import { Tag } from '../../api/tags/Tag';
 import { useHasMe } from '../session/useHasMe';
 
@@ -14,7 +14,7 @@ export const useAllTagList = ({ page = 1, per = 100 }: {
   const hasMe = useHasMe();
   const [pageInfo, setPageInfo] = useState<OffsetPagination>();
 
-  const { isLoading, error, data } = <UseQueryResult<Tag[], JsonAPIError[]>>useQuery(
+  const { isLoading, error, data } = useQuery<Tag[] | undefined, JsonAPIError[]>(
     ['tags', 'page', page, 'per', per],
     async () => {
       const { data, errors, meta } = await getTagList({ page, per });

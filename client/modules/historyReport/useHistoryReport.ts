@@ -1,7 +1,7 @@
 import { JsonAPIError } from '@/api/JsonAPIError';
 import { makeTuple } from '@/libs';
 import { getHistoryReport } from '@/api/histories';
-import { useQuery, UseQueryResult } from 'react-query';
+import { useQuery } from 'react-query';
 import { HistoryReport } from '@/api/histories/HistoryReport';
 import { useHasMe } from '../session/useHasMe';
 
@@ -10,7 +10,7 @@ export const useHistoryReport = ({ condition }: {
 } = {}) => {
   const hasMe = useHasMe();
 
-  const { isLoading, error, data } = <UseQueryResult<HistoryReport[], JsonAPIError[]>>useQuery(
+  const { isLoading, error, data } = useQuery<HistoryReport[] | undefined, JsonAPIError[]>(
     ['history-report', 'condition', condition],
     async () => {
       const { data, errors } = await getHistoryReport({ condition })
